@@ -6,12 +6,15 @@ namespace AndamRunner
     // Original 3D interpretations of the user's runner sheet. No world-space item labels.
     public static class RunnerReferenceArt
     {
-        private static readonly Color Blue=new Color32(37,118,217,255);
-        private static readonly Color Aqua=new Color32(94,193,236,255);
+        private static readonly Color Blue=new Color32(20,107,255,255);
+        private static readonly Color Aqua=new Color32(44,218,255,255);
         private static readonly Color Dark=new Color32(43,47,52,255);
-        private static readonly Color Gold=new Color32(255,192,38,255);
-        private static readonly Color Red=new Color32(225,61,49,255);
-        private static readonly Color Ivory=new Color32(249,242,223,255);
+        private static readonly Color Gold=new Color32(255,211,23,255);
+        private static readonly Color Red=new Color32(255,60,83,255);
+        private static readonly Color Ivory=new Color32(255,252,237,255);
+        private static readonly Color Violet=new Color32(151,65,255,255);
+        private static readonly Color SupplyMint=new Color32(48,255,167,255);
+        private static readonly Color DistractorOrange=new Color32(255,132,26,255);
         private static readonly Color Wood=new Color32(137,92,53,255);
         private static Mesh rock;
 
@@ -19,11 +22,12 @@ namespace AndamRunner
         {
             Surfaces();
             Transform art=PrimitiveArt.Root(PreparednessContent.SupplyNames[(int)kind]+" / icon only",parent,Vector3.zero);
-            Disk(art,"Pickup glow",new Vector3(0,.045f,0),new Vector3(.47f,.02f,.47f),PreparednessContent.Mint);
+            Disk(art,"Pickup contrast rim",new Vector3(0,.041f,0),new Vector3(.54f,.02f,.54f),Dark);
+            Disk(art,"Pickup glow",new Vector3(0,.045f,0),new Vector3(.47f,.02f,.47f),SupplyMint);
             switch(kind)
             {
                 case SupplyKind.GoBag:
-                    Round(art,"Emergency backpack",new Vector3(0,.66f,0),new Vector3(.74f,.84f,.39f),new Color32(224,104,43,255));
+                    Round(art,"Emergency backpack",new Vector3(0,.66f,0),new Vector3(.74f,.84f,.39f),new Color32(255,104,31,255));
                     Round(art,"Front pocket",new Vector3(0,.52f,-.24f),new Vector3(.55f,.35f,.14f),Gold);
                     Round(art,"Backpack top handle",new Vector3(0,1.13f,0),new Vector3(.31f,.075f,.075f),Dark);
                     for(int side=-1;side<=1;side+=2) Round(art,"Shoulder strap",new Vector3(side*.24f,.71f,.24f),new Vector3(.09f,.65f,.08f),Dark);
@@ -62,9 +66,9 @@ namespace AndamRunner
 
         private static void Cash(Transform art)
         {
-            Color note=new Color32(80,167,114,255);
+            Color note=new Color32(39,220,107,255);
             for(int i=0;i<3;i++)
-                Round(art,"Fictional emergency banknote",new Vector3((i-1)*.035f,.54f+i*.065f,.055f-i*.06f),new Vector3(.78f,.36f,.055f),i==2?note:PreparednessContent.Mint);
+                Round(art,"Fictional emergency banknote",new Vector3((i-1)*.035f,.54f+i*.065f,.055f-i*.06f),new Vector3(.78f,.36f,.055f),i==2?note:SupplyMint);
             FaceDisk(art,"Banknote emblem",new Vector3(.035f,.67f,-.105f),.115f,PreparednessContent.Cream);
             Thin(art,"Peso symbol stem",new Vector3(.01f,.67f,-.116f),new Vector3(.022f,.17f,.009f),note);
             Thin(art,"Peso symbol upper bar",new Vector3(.052f,.718f,-.116f),new Vector3(.10f,.020f,.009f),note);
@@ -80,7 +84,7 @@ namespace AndamRunner
         private static void Food(Transform art)
         {
             Transform can=PrimitiveArt.Root("Ready-to-eat pull-tab can",art,new Vector3(-.19f,.58f,0));
-            Band(can,"Canned food",Vector3.zero,.23f,.23f,.56f,PreparednessContent.Teal);
+            Band(can,"Canned food",Vector3.zero,.23f,.23f,.56f,Violet);
             Disk(can,"Can lid",new Vector3(0,.29f,0),new Vector3(.225f,.016f,.225f),Ivory);
             Disk(can,"Can base",new Vector3(0,-.29f,0),new Vector3(.225f,.016f,.225f),Ivory);
             Round(can,"Pull tab",new Vector3(0,.312f,-.025f),new Vector3(.085f,.018f,.15f),Dark);
@@ -96,7 +100,8 @@ namespace AndamRunner
         {
             Surfaces();
             Transform art=PrimitiveArt.Root(PreparednessContent.DistractorNames[(int)kind]+" / icon only",parent,Vector3.zero);
-            Disk(art,"Distractor orange marker",new Vector3(0,.045f,0),new Vector3(.47f,.02f,.47f),PreparednessContent.Orange);
+            Disk(art,"Distractor contrast rim",new Vector3(0,.041f,0),new Vector3(.54f,.02f,.54f),Dark);
+            Disk(art,"Distractor orange marker",new Vector3(0,.045f,0),new Vector3(.47f,.02f,.47f),DistractorOrange);
             switch(kind)
             {
                 case DistractorKind.GymEquipment: Dumbbell(art); break;
@@ -116,17 +121,17 @@ namespace AndamRunner
             for(int side=-1;side<=1;side+=2)
             {
                 Transform plate=PrimitiveArt.Root("Rounded weight plates",weight,new Vector3(side*.37f,0,0)); plate.localRotation=Quaternion.Euler(0,0,90);
-                Band(plate,"Graphite weight",Vector3.zero,.28f,.28f,.20f,Dark);
+                Band(plate,"Purple weight",Vector3.zero,.28f,.28f,.20f,Violet);
                 for(int end=-1;end<=1;end+=2)
                 {
                     Transform face=PrimitiveArt.Root("Solid weight face",plate,new Vector3(0,end*.10f,0));
                     if(end<0) face.localRotation=Quaternion.Euler(180,0,0);
-                    Disk(face,"Graphite end cap",Vector3.zero,new Vector3(.266f,.01f,.266f),Dark,12);
+                    Disk(face,"Purple end cap",Vector3.zero,new Vector3(.266f,.01f,.266f),Violet,12);
                 }
-                Band(plate,"Purple weight collar",new Vector3(0,side*.12f,0),.20f,.20f,.07f,new Color32(137,112,199,255));
+                Band(plate,"Pink weight collar",new Vector3(0,side*.12f,0),.20f,.20f,.07f,Red);
                 Transform collar=PrimitiveArt.Root("Weight collar face",plate,new Vector3(0,side*.155f,0));
                 if(side<0) collar.localRotation=Quaternion.Euler(180,0,0);
-                Disk(collar,"Purple end cap",Vector3.zero,new Vector3(.19f,.01f,.19f),new Color32(137,112,199,255),12);
+                Disk(collar,"Pink end cap",Vector3.zero,new Vector3(.19f,.01f,.19f),Red,12);
             }
         }
 
@@ -161,7 +166,7 @@ namespace AndamRunner
 
         private static void Makeup(Transform art)
         {
-            Color pink=new Color32(225,91,135,255);
+            Color pink=new Color32(255,58,173,255);
             Band(art,"Lipstick gold tube",new Vector3(-.24f,.52f,-.015f),.12f,.12f,.39f,Gold);
             Band(art,"Lipstick rose tip",new Vector3(-.24f,.83f,-.015f),.087f,.087f,.28f,pink);
             Disk(art,"Lipstick tip",new Vector3(-.24f,.974f,-.015f),new Vector3(.08f,.01f,.08f),pink);
@@ -173,7 +178,7 @@ namespace AndamRunner
 
         private static void GameConsole(Transform art)
         {
-            Round(art,"Unbranded game console",new Vector3(0,.82f,.10f),new Vector3(.75f,.44f,.22f),Ivory);
+            Round(art,"Unbranded game console",new Vector3(0,.82f,.10f),new Vector3(.75f,.44f,.22f),Violet);
             Thin(art,"Console vent",new Vector3(0,.89f,-.020f),new Vector3(.56f,.045f,.015f),Dark);
             FaceDisk(art,"Console power light",new Vector3(.25f,.77f,-.021f),.025f,Blue);
             Round(art,"Game controller",new Vector3(0,.46f,-.14f),new Vector3(.57f,.23f,.15f),Dark);
@@ -238,27 +243,34 @@ namespace AndamRunner
                 case HazardKind.Debris: Rubble(art); break;
                 case HazardKind.RoadBlock: Barrier(art,Vector3.zero); break;
                 case HazardKind.HangingCable: HangingCable(art); break;
+                case HazardKind.FloodStreak: Flood(art,PreparednessContent.FloodStreakLength,true); break;
             }
             StorybookArt.CombineBone(art,true);
             return art;
         }
 
-        private static void Flood(Transform art)
+        private static void Flood(Transform art,float length=4.7f,bool streak=false)
         {
-            Round(art,"Floodwater footprint",new Vector3(0,.055f,0),new Vector3(2.25f,.10f,4.7f),new Color32(31,145,207,255));
-            const int across=8,along=12; var vertices=new List<Vector3>(); var faces=new List<int>();
+            Color waterColor=streak ? new Color32(22,133,224,255) : Aqua;
+            Round(art,"Floodwater footprint",new Vector3(0,.055f,0),new Vector3(2.25f,.10f,length),new Color32(31,145,207,255));
+            const int across=8; int along=Mathf.CeilToInt(length/.4f); var vertices=new List<Vector3>(); var faces=new List<int>();
             for(int row=0;row<=along;row++) for(int col=0;col<=across;col++)
             {
-                float x=-1.08f+2.16f*col/across,z=-2.28f+4.56f*row/along;
+                float x=-1.08f+2.16f*col/across,z=-length*.5f+.07f+(length-.14f)*row/along;
                 vertices.Add(new Vector3(x,.17f+Mathf.Sin(x*3.2f+z*4.4f)*.030f+Mathf.Cos(z*3)*.012f,z));
             }
             for(int row=0;row<along;row++) for(int col=0;col<across;col++)
             { int a=row*(across+1)+col,b=a+1,c=a+across+1,d=c+1; faces.AddRange(new[]{a,c,b,b,c,d}); }
             Mesh water=new Mesh{name="Rolling stylized floodwater",vertices=vertices.ToArray(),triangles=faces.ToArray()}; water.RecalculateNormals();
-            PrimitiveArt.MeshPart(art,"Blue rolling floodwater",water,Vector3.zero,Vector3.one,Aqua);
-            for(int i=0;i<4;i++) StorybookArt.Stroke(art,"Foam crest",new Vector3(-.85f,.24f,-1.7f+i),new Vector3(-.1f,.30f,-1.9f+i),new Vector3(.83f,.245f,-1.65f+i),.019f,new Color32(220,247,255,255));
+            PrimitiveArt.MeshPart(art,"Blue rolling floodwater",water,Vector3.zero,Vector3.one,waterColor);
+            for(int i=0;i<Mathf.FloorToInt(length);i++)
+            {
+                float z=-length*.5f+.65f+i;
+                StorybookArt.Stroke(art,"Foam crest",new Vector3(-.85f,.24f,z),new Vector3(-.1f,.30f,z-.2f),new Vector3(.83f,.245f,z+.05f),.019f,new Color32(220,247,255,255));
+            }
             Round(art,"Floating timber",new Vector3(-.36f,.20f,-.65f),new Vector3(.85f,.20f,.26f),Wood,new Vector3(0,29,11));
-            Barrier(art,new Vector3(0,0,1.75f),.58f);
+            Barrier(art,new Vector3(0,0,length*.5f-.60f),.58f);
+            if(streak) Barrier(art,new Vector3(0,0,-length*.5f+.60f),.58f);
         }
 
         private static void Rubble(Transform art)

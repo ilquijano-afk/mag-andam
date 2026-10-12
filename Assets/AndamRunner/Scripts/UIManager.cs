@@ -58,6 +58,8 @@ namespace AndamRunner
             safe.anchorMin=new Vector2(lastSafeArea.x/Screen.width,lastSafeArea.y/Screen.height);
             safe.anchorMax=new Vector2(lastSafeArea.xMax/Screen.width,lastSafeArea.yMax/Screen.height);
             safe.offsetMin=safe.offsetMax=Vector2.zero;
+            Canvas.ForceUpdateCanvases();
+            foreach(SafeArtworkFrame frame in GetComponentsInChildren<SafeArtworkFrame>(true)) frame.FitNow();
         }
 
         private void BuildHud()
@@ -104,9 +106,9 @@ namespace AndamRunner
                 resultsScore.resizeTextMinSize=48;
                 //resultsSummary=TextLabel(layer,"",.13f,.447f,.87f,.492f,18,PreparednessContent.Ink);
                 resultsSummary=TextLabel(layer,"",.13f,.492f,.87f,.559f,25,PreparednessContent.Ink);
-                IllustratedButtonAt(layer,"RIDE AGAIN",.257f,.175f,.747f,.252f,game.StartRun);
-                IllustratedButtonAt(layer,"ABOUT THE GAME",.068f,.095f,.493f,.168f,game.ReturnToMenu);
-                IllustratedButtonAt(layer,"CREDITS",.508f,.095f,.933f,.168f,ShowLeaderboard);
+                IllustratedButtonAt(layer,"PLAY AGAIN",.257f,.175f,.747f,.252f,game.StartRun);
+                IllustratedButtonAt(layer,"MAIN MENU",.068f,.095f,.493f,.168f,game.ReturnToMenu);
+                IllustratedButtonAt(layer,"SCORES",.508f,.095f,.933f,.168f,ShowLeaderboard);
                 return;
             }
             RectTransform card=Card("Results",new Vector2(.05f,.07f),new Vector2(.95f,.93f),Panel,layer); results=layer.gameObject;

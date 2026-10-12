@@ -133,6 +133,7 @@ namespace AndamRunnerEditor
             foreach(WorldLabel label in game.GetComponentsInChildren<WorldLabel>()) label.SendMessage("LateUpdate");
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(game.UI.GetComponent<RectTransform>());
+            foreach(SafeArtworkFrame frame in game.UI.GetComponentsInChildren<SafeArtworkFrame>(true)) frame.FitNow();
             Canvas.ForceUpdateCanvases();
             camera.Render(); camera.Render();
             if(game.UI.CurrentPage==MenuPage.Results)
@@ -164,6 +165,9 @@ namespace AndamRunnerEditor
             game.UI.ShowLeaderboard(); CapturePhoneSizes(game,"11-Leaderboard-SampleRuns");
             CheckTrackArtwork(game); CaptureTrackArtwork(game);
             game.StartRun(); game.Simulate(2); CapturePhoneSizes(game,"09-Gameplay");
+            game.StartRun(); game.Spawner.SpawnHazard(HazardKind.FloodStreak,0,26);
+            game.Feedback("LONG FLOOD AHEAD\nChange lanes! Too long to jump.",false);
+            CapturePhoneSizes(game,"25-Gameplay-LongFlood");
             game.Pace.Advance(250); game.UI.RefreshDistance(); Capture(game,"21-Gameplay-Speed250m");
             game.Hit(HazardKind.Debris); Capture(game,"22-Gameplay-SpeedReset");
             game.StartRun();
@@ -183,13 +187,13 @@ namespace AndamRunnerEditor
             CapturePhoneSizes(game,"18-Gameplay-Duck");
             string report="Unity "+Application.unityVersion+" supplied menu PNG validation on "+DateTime.UtcNow.ToString("u")+"\n"+
                 "Gameplay, menu navigation and persistent leaderboard smoke checks passed.\n"+
-                "All seven page PNGs, empty leaderboard and ten sample leaderboard rows rendered at 720x1280, 720x1080 and 720x1600. Live results scores and replay/About/credits/menu/leaderboard navigation checked.\n"+
+                "All seven page PNGs, empty leaderboard and ten sample leaderboard rows rendered at 720x1280, 720x1080 and 720x1600. Live results scores and menu/leaderboard navigation checked.\n"+
                 "Painted-button tap areas checked with the Unity GraphicRaycaster at their centers and near all four edges. Transparent graphics remain tappable and their duplicate text is disabled.\n"+
                 "Artwork preserves its original aspect ratio, all edges, and button alignment in one fitted safe-area frame.\n"+
                 "Starting speed is 18 m/s; milestone boosts reach 19.5 at 250 m and 21 at 500 m, capped at 26. Collision resets retain distance and return to 18. Pause, restart, frame-rate consistency and duck contact checks passed.\n"+
                 "Gameplay and ducking rendered at three phone sizes with the doubled starting speed; milestone and collision-reset HUD previews also rendered.\n"+
                 "Nine useful supplies include cash (+10) and non-perishable food (+15). Five distractors subtract five points, never reduce lives, reset speed, fill checklist types or make scores negative. Actual pickups, pause/restart, natural spawning and score persistence checked.\n"+
-                "All fourteen pickups and five hazards rendered individually and checked for finite geometry, triangle budgets and absence of floating text.\n"+
+                "All fourteen pickups and six hazards rendered individually and checked for finite geometry, triangle budgets and absence of floating text. New 32-meter floods and vivid collectible colors rendered in gameplay.\n"+
                 "Sample scores use isolated in-memory storage; no real player scores were modified. Original PNG pixels were not edited.\n"+
                 "Android touch and physical-device testing has not been performed.\n";
             File.WriteAllText("Docs/Menu-PNG-Validation.txt",report);
@@ -294,14 +298,14 @@ namespace AndamRunnerEditor
                     foreach(Vector3 v in mesh.vertices) if(!Finite(v)) throw new Exception("Invalid object vertex: "+entity.name);
                     foreach(Vector3 n in mesh.normals) if(!Finite(n) || n.sqrMagnitude<.1f) throw new Exception("Invalid object normal: "+entity.name);
                 }
-                int limit=entity.IsPickup?800:1500;
+                int limit=entity.IsPickup?800:entity.Hazard==HazardKind.FloodStreak?5000:1500;
                 if(triangles<100 || triangles>limit) throw new Exception("Track artwork triangle budget: "+entity.name+" / "+triangles);
                 if(entity.IsSupply) { supplies.Add(entity.Supply); maxSupply=Mathf.Max(maxSupply,triangles); }
                 else if(entity.IsDistractor) { distractors.Add(entity.Distractor); maxDistractor=Mathf.Max(maxDistractor,triangles); }
                 else { hazards.Add(entity.Hazard); maxHazard=Mathf.Max(maxHazard,triangles); }
             }
             if(supplies.Count!=PreparednessContent.SupplyCount || distractors.Count!=PreparednessContent.DistractorCount || hazards.Count!=PreparednessContent.HazardCount) throw new Exception("Every supply, distractor and hazard needs checked artwork.");
-            Debug.Log("ANDAM_TRACK_ART_PASS: nine supplies, five distractors and five hazards have no floating text, valid meshes, max supply "+maxSupply+" / distractor "+maxDistractor+" / hazard "+maxHazard+" triangles.");
+            Debug.Log("ANDAM_TRACK_ART_PASS: nine supplies, five distractors and "+PreparednessContent.HazardCount+" hazards have no floating text, valid meshes, max supply "+maxSupply+" / distractor "+maxDistractor+" / hazard "+maxHazard+" triangles.");
         }
         private static bool Finite(Vector3 v)
         { return !float.IsNaN(v.x) && !float.IsNaN(v.y) && !float.IsNaN(v.z) && !float.IsInfinity(v.x) && !float.IsInfinity(v.y) && !float.IsInfinity(v.z); }
@@ -326,8 +330,9 @@ namespace AndamRunnerEditor
             camera.clearFlags=CameraClearFlags.SolidColor; camera.backgroundColor=new Color32(249,237,213,255); camera.cullingMask=1<<9;
             bool fullWidth=hazard==HazardKind.HangingCable;
             bool pickup=supply.HasValue || distractor.HasValue;
-            camera.orthographic=true; camera.orthographicSize=pickup?.90f:fullWidth?4.70f:hazard==HazardKind.Floodwater?2.30f:1.50f;
-            camera.transform.position=review.position+(pickup?new Vector3(.65f,1.55f,-3.4f):fullWidth?new Vector3(2.4f,3.5f,-6.4f):new Vector3(2.4f,2.3f,-4.4f));
+            bool longFlood=hazard==HazardKind.FloodStreak;
+            camera.orthographic=true; camera.orthographicSize=pickup?.90f:longFlood?17f:fullWidth?4.70f:hazard==HazardKind.Floodwater?2.30f:1.50f;
+            camera.transform.position=review.position+(pickup?new Vector3(.65f,1.55f,-3.4f):longFlood?new Vector3(4,18,-20):fullWidth?new Vector3(2.4f,3.5f,-6.4f):new Vector3(2.4f,2.3f,-4.4f));
             camera.transform.LookAt(review.position+new Vector3(0,pickup?.65f:fullWidth?1.75f:.38f,0));
             var target=new RenderTexture(1024,1024,24,RenderTextureFormat.ARGB32){antiAliasing=2}; target.Create(); camera.targetTexture=target;
             camera.Render(); RenderTexture previous=RenderTexture.active; RenderTexture.active=target;

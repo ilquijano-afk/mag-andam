@@ -16,6 +16,12 @@ namespace AndamRunner
         public bool Consumed { get; private set; }
         public bool Warned { get; set; }
         public bool SpansAllLanes => !IsPickup && Hazard==HazardKind.HangingCable;
+        public float HalfDepth => IsPickup ? .65f : Hazard switch
+        {
+            HazardKind.Floodwater => 2.4f,
+            HazardKind.FloodStreak => PreparednessContent.FloodStreakLength*.5f,
+            _ => .9f
+        };
         private Transform art;
         private float phase;
 
@@ -53,8 +59,19 @@ namespace AndamRunner
         public bool IsContact(Vector3 playerFrom, Vector3 playerTo, float fromZ, float toZ,float duckRemainingAtStart=0,float delta=0)
         {
             if (Consumed || !gameObject.activeSelf) return false;
-            float halfDepth = IsPickup ? 0.65f : Hazard == HazardKind.Floodwater ? 2.4f : 0.9f;
+            float halfDepth = HalfDepth;
             if (toZ > halfDepth || fromZ < -halfDepth) return false;
+            if (!IsPickup && !SpansAllLanes)
+            {
+                // The shield must clear the whole ground obstacle, including the long water patch.
+                // Restrict the sweep to the time actually inside its lane and footprint: a landing
+                // behind an obstacle must not turn a successful jump into a delayed hit.
+                float enter=0f, exit=1f;
+                if (!ClipSweep(fromZ,toZ,halfDepth,ref enter,ref exit) ||
+                    !ClipSweep(playerFrom.x-transform.position.x,playerTo.x-transform.position.x,1.15f,ref enter,ref exit)) return false;
+                float lowestHeight=Mathf.Min(Mathf.Lerp(playerFrom.y,playerTo.y,enter),Mathf.Lerp(playerFrom.y,playerTo.y,exit));
+                return lowestHeight < GroundClearanceHeight;
+            }
             float denominator = fromZ - toZ;
             float t = denominator > 0.00001f ? Mathf.Clamp01(fromZ / denominator) : 1f;
             Vector3 atCrossing = Vector3.Lerp(playerFrom, playerTo, t);
@@ -66,8 +83,27 @@ namespace AndamRunner
             }
             if (Mathf.Abs(atCrossing.x - transform.position.x) > (IsPickup ? 0.95f : 1.15f)) return false;
             if (IsPickup) return atCrossing.y < 1.5f;
-            // Flood/wire/block zones are forbidden at every jump height. Board cannot make them safe.
-            return Hazard != HazardKind.Debris || atCrossing.y < 0.95f;
+            return false;
+        }
+
+        // Heights include a small margin above the matching artwork; Opong's shield is at root Y.
+        private float GroundClearanceHeight => Hazard switch
+        {
+            HazardKind.Floodwater => .75f,
+            HazardKind.FloodStreak => .75f,
+            HazardKind.PowerLine => 1.05f,
+            HazardKind.Debris => .65f,
+            _ => 1.15f
+        };
+
+        private static bool ClipSweep(float from,float to,float halfExtent,ref float enter,ref float exit)
+        {
+            float movement=to-from;
+            if (Mathf.Abs(movement)<.00001f) return Mathf.Abs(from)<=halfExtent;
+            float first=(-halfExtent-from)/movement, last=(halfExtent-from)/movement;
+            enter=Mathf.Max(enter,Mathf.Min(first,last));
+            exit=Mathf.Min(exit,Mathf.Max(first,last));
+            return enter<=exit;
         }
     }
 }

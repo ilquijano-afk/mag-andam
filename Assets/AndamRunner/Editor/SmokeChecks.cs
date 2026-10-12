@@ -61,11 +61,12 @@ namespace AndamRunnerEditor
                 TrackEntity hazard=game.Spawner.SpawnHazard((HazardKind)kind,1,1f);
                 Check(hazard!=null,"hazard pool capacity");
                 bool contact=hazard.IsContact(new Vector3(0,2.3f,0),new Vector3(0,2.3f,0),3,-3);
-                Check(contact==(kind!=(int)HazardKind.Debris),"only debris is jumpable");
+                Check(!contact,"all ground obstacles are jumpable");
                 Check(hazard.IsContact(Vector3.zero,Vector3.zero,3,-3),"swept hazard contact at slow frame");
                 hazard.Consume(); Check(!hazard.IsContact(Vector3.zero,Vector3.zero,1,-1),"consumed object cannot collide twice");
             }
             CheckDuck(game);
+            JumpChecks.Run(game);
             CheckNewItems(game);
             game.StartRun(); game.Spawner.SpawnSupply(SupplyKind.GoBag,1,.1f); game.Simulate(.1f);
             Check(game.Session.Score==20 && game.Session.Collected==1,"real supply pickup");
@@ -80,13 +81,6 @@ namespace AndamRunnerEditor
             Check(saved==1 && game.LastRank==1,"completed run saved automatically");
             Click(game,"SCORES"); Check(game.UI.CurrentPage==MenuPage.Leaderboard,"results leaderboard navigation");
             game.UI.HandleBack(); Check(game.UI.CurrentPage==MenuPage.Results,"leaderboard returns to results");
-            if(Resources.Load<Texture2D>("ScoreBackground")!=null)
-            {
-                Click(game,"ABOUT THE GAME"); Check(game.UI.CurrentPage==MenuPage.About,"results About navigation");
-                Click(game,"<  BACK"); Check(game.UI.CurrentPage==MenuPage.Results,"About back restores results");
-                Click(game,"CREDITS"); Check(game.UI.CurrentPage==MenuPage.Credits,"results credits navigation");
-                Click(game,"<  BACK"); Check(game.UI.CurrentPage==MenuPage.Results,"credits back restores results");
-            }
             game.FinishRun(); Check(game.Leaderboard.Entries.Count==saved,"results cannot save same run twice");
             Click(game,"MAIN MENU"); Check(game.State==RunState.Ready && game.UI.CurrentPage==MenuPage.Home,"results to menu");
             game.StartRun();

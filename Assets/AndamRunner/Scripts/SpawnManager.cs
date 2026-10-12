@@ -12,6 +12,7 @@ namespace AndamRunner
         private int previousSafeLane = 1;
         private int rows;
         private int distractorRows;
+        private readonly int[] safeChoices=new int[3];
         public int ActiveCount => active.Count;
         public IReadOnlyList<TrackEntity> Active => active;
 
@@ -36,7 +37,9 @@ namespace AndamRunner
                         entity.ConfigureDistractor((DistractorKind)kind,lane,RunnerReferenceArt.Distractor(root,(DistractorKind)kind));
                         pool.Add(entity);
                     }
-                for (int kind = 0; kind < 4; kind++)
+                for (int kind = 0; kind < PreparednessContent.HazardCount; kind++)
+                {
+                    if(kind==(int)HazardKind.HangingCable) continue;
                     for (int copy = 0; copy < 2; copy++)
                     {
                         Transform root = PrimitiveArt.Root("Pooled hazard",transform,Vector3.zero);
@@ -44,6 +47,7 @@ namespace AndamRunner
                         entity.ConfigureHazard((HazardKind)kind,lane,PrimitiveArt.HazardArt(root,(HazardKind)kind));
                         pool.Add(entity);
                     }
+                }
             }
             // Full-width cables have one entity, preventing three penalties for one obstacle.
             for(int copy=0;copy<2;copy++)
@@ -84,11 +88,17 @@ namespace AndamRunner
                 {
                     entity.Warned=true; game.Feedback("LOW CABLE ACROSS ALL LANES\nSwipe DOWN or tap DUCK now!",false);
                 }
+                if(!entity.IsPickup && entity.Hazard==HazardKind.FloodStreak && !entity.Warned &&
+                    entity.Lane==player.Lane && toZ<entity.HalfDepth+speed*1.2f && toZ>entity.HalfDepth)
+                {
+                    entity.Warned=true;
+                    game.Feedback("LONG FLOOD AHEAD\nChange lanes! Too long to jump.",false);
+                }
                 if (!entity.IsPickup && !entity.Warned && toZ < 22f && toZ > 8f &&
                     entity.Lane == player.Lane && (entity.Hazard == HazardKind.Floodwater || entity.Hazard == HazardKind.PowerLine))
                 {
                     entity.Warned = true;
-                    game.Feedback(PreparednessContent.HazardNames[(int)entity.Hazard] + ". Change lanes!", false);
+                    game.Feedback(PreparednessContent.HazardNames[(int)entity.Hazard] + "\nSwipe UP to jump or change lanes!", false);
                 }
                 if (entity.IsContact(playerFrom,player.transform.position,fromZ,toZ,duckBefore,delta))
                 {
@@ -100,7 +110,7 @@ namespace AndamRunner
                     active.RemoveAt(i);
                     if (game.State != RunState.Playing) return;
                 }
-                else if (toZ < -8f)
+                else if (toZ < -Mathf.Max(8f,entity.HalfDepth+2f))
                 {
                     entity.Consume(); active.RemoveAt(i);
                 }
@@ -117,13 +127,31 @@ namespace AndamRunner
         private void SpawnRow(float z)
         {
             rows++;
+            // Reserve the neighboring rows too: the streak must never hide a pickup or
+            // close the guaranteed dry route while it occupies one lane for 32 meters.
+            bool newFlood=false;
+            if(rows>=5 && rows%18==5)
+            {
+                int first=random.Next(3);
+                for(int i=0;i<3;i++)
+                {
+                    int lane=(first+i)%3;
+                    if(!CanStartFlood(lane,z)) continue;
+                    newFlood=SpawnHazard(HazardKind.FloodStreak,lane,z)!=null;
+                    if(newFlood) break;
+                }
+            }
             // A guaranteed safe lane, at most one lane from the previous safe route.
             int low = Mathf.Max(0,previousSafeLane-1), high = Mathf.Min(2,previousSafeLane+1);
-            int safe = random.Next(low,high+1);
+            int count=0;
+            for(int lane=low;lane<=high;lane++) if(!FloodedAt(lane,z)) safeChoices[count++]=lane;
+            if(count==0) return;
+            int safe = safeChoices[random.Next(count)];
             previousSafeLane = safe;
             // Cycle every useful kind, including cash and food, before randomizing.
             SupplyKind supply = rows <= PreparednessContent.SupplyCount ? (SupplyKind)((rows+2)%PreparednessContent.SupplyCount) : (SupplyKind)random.Next(PreparednessContent.SupplyCount);
             SpawnSupply(supply,safe,z);
+            if(newFlood) return;
             // Cable rows require a duck rather than a lane choice. Neighboring rows are clear
             // of ground hazards so the player has time to finish ducking before the next jump.
             if(rows>=9 && rows%9==0) { SpawnHazard(HazardKind.HangingCable,1,z); return; }
@@ -133,14 +161,32 @@ namespace AndamRunner
             if(rows%3==0)
             {
                 int lane=(safe+1)%3;
+                if(FloodedAt(lane,z)) lane=(safe+2)%3;
                 SpawnDistractor((DistractorKind)(distractorRows++%PreparednessContent.DistractorCount),lane,z);
             }
             if (rows % 3 != 0)
             {
                 int hazardLane = (safe + (random.Next(2)==0 ? 1 : 2)) % 3;
-                SpawnHazard((HazardKind)random.Next(4),hazardLane,z);
-                if (rows > 7 && rows % 4 == 0) SpawnHazard((HazardKind)random.Next(4),3-safe-hazardLane,z);
+                if(!FloodedAt(hazardLane,z)) SpawnHazard((HazardKind)random.Next(4),hazardLane,z);
+                int otherLane=3-safe-hazardLane;
+                if (rows > 7 && rows % 4 == 0 && !FloodedAt(otherLane,z)) SpawnHazard((HazardKind)random.Next(4),otherLane,z);
             }
+        }
+
+        private bool FloodedAt(int lane,float z)
+        {
+            foreach(TrackEntity entity in active)
+                if(!entity.IsPickup && !entity.Consumed && entity.Hazard==HazardKind.FloodStreak && entity.Lane==lane &&
+                    Mathf.Abs(entity.transform.position.z-z)<=entity.HalfDepth+2.4f) return true;
+            return false;
+        }
+
+        private bool CanStartFlood(int lane,float z)
+        {
+            foreach(TrackEntity entity in active)
+                if(!entity.Consumed && (entity.Lane==lane || entity.SpansAllLanes) &&
+                    Mathf.Abs(entity.transform.position.z-z)<=PreparednessContent.FloodStreakLength*.5f+entity.HalfDepth) return false;
+            return true;
         }
 
         public TrackEntity SpawnSupply(SupplyKind kind, int lane, float z) { return Spawn(true,(int)kind,lane,z); }

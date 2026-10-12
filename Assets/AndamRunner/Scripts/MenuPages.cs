@@ -48,11 +48,17 @@ namespace AndamRunner
             {
                 Image surround=root.gameObject.AddComponent<Image>();
                 surround.color=new Color32(15,34,54,255); surround.raycastTarget=true;
-                // Fit the complete composition; the artwork and its tap areas share one frame.
+                // Fill spare screen space with a dimmed illustration, then fit the complete
+                // composition inside the phone's safe area with its tap targets attached.
+                RectTransform edges=Rect(root,"Illustrated screen edges",Vector2.zero,Vector2.one);
+                RawImage edgePicture=edges.gameObject.AddComponent<RawImage>();
+                Texture2D scenery=Resources.Load<Texture2D>("StormEvacuationCoast") ?? Resources.Load<Texture2D>("StorybookCoast") ?? artwork;
+                edgePicture.texture=scenery; edgePicture.color=new Color(.45f,.45f,.45f,1); edgePicture.raycastTarget=false;
+                AspectRatioFitter edgeFit=edges.gameObject.AddComponent<AspectRatioFitter>();
+                edgeFit.aspectMode=AspectRatioFitter.AspectMode.EnvelopeParent;
+                edgeFit.aspectRatio=(float)scenery.width/scenery.height;
                 RectTransform frame=Rect(root,"Artwork and touch targets",Vector2.zero,Vector2.one);
-                AspectRatioFitter frameFit=frame.gameObject.AddComponent<AspectRatioFitter>();
-                frameFit.aspectMode=AspectRatioFitter.AspectMode.FitInParent;
-                frameFit.aspectRatio=(float)artwork.width/artwork.height;
+                frame.gameObject.AddComponent<SafeArtworkFrame>().Initialize((float)artwork.width/artwork.height);
                 RawImage picture=frame.gameObject.AddComponent<RawImage>();
                 picture.texture=artwork; picture.raycastTarget=false;
                 return frame;
@@ -196,8 +202,8 @@ namespace AndamRunner
                 instructionTabs[i]=Rect(card,titles[i]+" instructions",new Vector2(.05f,.04f),new Vector2(.95f,.86f)).gameObject;
             }
             Transform controls=instructionTabs[0].transform;
-            InstructionCard(controls,"01  FOLLOW THE OPEN ROUTE","Swipe LEFT or RIGHT to change lanes.\nAvoid floodwater, fallen wires and closed roads.",.745f,.98f);
-            InstructionCard(controls,"02  JUMP & DUCK","Swipe UP for small debris. Swipe DOWN for low disconnected cables across all lanes.",.50f,.73f);
+            InstructionCard(controls,"01  FOLLOW THE OPEN ROUTE","Swipe LEFT or RIGHT to change lanes.\nJump over ground obstacles or use an open lane.",.745f,.98f);
+            InstructionCard(controls,"02  JUMP & DUCK","Swipe UP over small ground obstacles. Change lanes for LONG floods. Swipe DOWN under hanging cables.",.50f,.73f);
             InstructionCard(controls,"03  SPEED & SUPPLIES","Speed rises every 250 m; a bump resets it.\nCollect supplies. Three lives. Tap II to pause.",.255f,.485f);
             InstructionCard(controls,"04  BUTTONS & KEYBOARD","Tap LEFT, RIGHT, JUMP or DUCK.\nEditor: A/D or arrows; Space jumps; S ducks.",.01f,.24f);
             Transform supplies=instructionTabs[1].transform;
@@ -211,7 +217,7 @@ namespace AndamRunner
             }
             TextLabel(supplies,"Find all "+PreparednessContent.SupplyCount+" useful types. Distractors cost 5 points, not lives.",0,.01f,1,.10f,19,PreparednessContent.Ink);
             Transform safety=instructionTabs[2].transform;
-            InstructionCard(safety,"FLOODWATER & FALLEN WIRES","Stay away. Change lanes in the game.\nIn real life, tell an adult and use a safe route.",.68f,.97f);
+            InstructionCard(safety,"FLOODWATER & FALLEN WIRES","In the game, jump or change lanes.\nIn real life, stay away, tell an adult and use a safe route.",.68f,.97f);
             InstructionCard(safety,"PREPAREDNESS STARTS AT HOME","Pack a go-bag with an adult. Keep exits clear.\nAsk an adult to secure heavy furniture.",.36f,.65f);
             InstructionCard(safety,"FOLLOW OFFICIAL INSTRUCTIONS","Evacuate with an adult when instructed.\nThe blue cable is a game-only duck obstacle.\nStay away from real electrical wires.",.035f,.33f);
             SelectInstructionTab(0);

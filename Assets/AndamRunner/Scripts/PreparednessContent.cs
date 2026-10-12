@@ -4,7 +4,7 @@ namespace AndamRunner
 {
     public enum SupplyKind { GoBag, Water, FirstAid, Flashlight, Whistle, Radio, ContactCard, Cash, Food }
     public enum DistractorKind { GymEquipment, Toys, Beer, Makeup, GameConsole }
-    public enum HazardKind { Floodwater, PowerLine, Debris, RoadBlock, HangingCable }
+    public enum HazardKind { Floodwater, PowerLine, Debris, RoadBlock, HangingCable, FloodStreak }
     public enum RunState { Splash, Ready, Playing, Paused, Results }
     public enum MenuPage { Splash, Home, Instructions, About, Credits, Leaderboard, Game, Pause, Results }
 
@@ -14,7 +14,8 @@ namespace AndamRunner
         public const int SupplyCount = 9;
         public const int DistractorCount = 5;
         public const int DistractorPenalty = 5;
-        public const int HazardCount = 5;
+        public const int HazardCount = 6;
+        public const float FloodStreakLength = 32f;
         public static readonly string[] SupplyNames =
         {
             "GO-BAG", "WATER", "FIRST AID", "FLASHLIGHT", "WHISTLE", "RADIO", "CONTACT CARD", "CASH", "NON-PERISHABLE FOOD"
@@ -42,14 +43,15 @@ namespace AndamRunner
             "Choose emergency supplies before makeup. Hygiene supplies are different.",
             "A game console needs power. Choose the emergency radio and flashlight first."
         };
-        public static readonly string[] HazardNames = { "FLOOD: STAY AWAY", "LIVE WIRE: STAY AWAY", "SMALL DEBRIS", "ROAD CLOSED", "LOW CABLE: DUCK" };
+        public static readonly string[] HazardNames = { "FLOODWATER", "DOWNED WIRES", "SMALL DEBRIS", "ROAD BARRIER", "LOW CABLE: DUCK", "LONG FLOOD: CHANGE LANES" };
         public static readonly string[] HazardTips =
         {
             "Stay out of floodwater. Move to a safe route with an adult.",
             "Stay far from fallen wires. Tell an adult; never touch them.",
             "Keep paths and exits clear. Ask an adult to remove real debris.",
             "Use an open, safe route. Follow local officials' instructions.",
-            "Swipe DOWN for the game's disconnected cable. Stay away from real electrical wires."
+            "Swipe DOWN for the game's disconnected cable. Stay away from real electrical wires.",
+            "Long floods need a lane change. In real life, use a dry, safe route with an adult."
         };
         public static readonly string[] HomeActions =
         {

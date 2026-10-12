@@ -22,6 +22,9 @@ namespace AndamRunnerEditor
                 throw new InvalidOperationException("Install iOS Build Support for Unity "+Application.unityVersion+" in Unity Hub.");
             PrototypeTools.PrepareProject();
             Configure();
+            EditorUserBuildSettings.development=false;
+            EditorUserBuildSettings.allowDebugging=false;
+            EditorUserBuildSettings.connectProfiler=false;
             string output=Environment.GetEnvironmentVariable("ANDAM_IOS_OUTPUT");
             if(string.IsNullOrWhiteSpace(output)) output="Builds/iOS/Xcode";
             output=Path.GetFullPath(output);
@@ -31,14 +34,15 @@ namespace AndamRunnerEditor
                 scenes=new[]{PrototypeTools.ScenePath},
                 locationPathName=output,
                 target=BuildTarget.iOS,
-                options=BuildOptions.Development
+                options=BuildOptions.None
             });
             if(report.summary.result!=BuildResult.Succeeded)
                 throw new Exception("iOS project export failed: "+report.summary.result+". Inspect the Unity build log.");
             File.WriteAllText(Path.Combine(Directory.GetParent(output).FullName,"Unity-export-status.txt"),
-                "Unity "+Application.unityVersion+" exported the iOS development Xcode project successfully.\n"+
+                "Unity "+Application.unityVersion+" exported the iOS release Xcode project successfully.\n"+
                 "Bundle ID: "+BundleId+"\nMinimum iOS: 15.0\nGraphics: Metal\nBackend: IL2CPP\nOrientation: Portrait\n"+
                 "Output: "+output+"\n"+
+                "Development player, script debugging and profiler are disabled.\n"+
                 "This is a native project export, not a signed IPA. Xcode archive/signing and device testing are separate steps.\n");
             Debug.Log("ANDAM_IOS_EXPORT_PASS: "+output);
         }
@@ -52,7 +56,7 @@ namespace AndamRunnerEditor
             PlayerSettings.iOS.sdkVersion=iOSSdkVersion.DeviceSDK;
             PlayerSettings.iOS.targetOSVersionString="15.0";
             PlayerSettings.iOS.targetDevice=iOSTargetDevice.iPhoneAndiPad;
-            PlayerSettings.iOS.buildNumber="1";
+            PlayerSettings.iOS.buildNumber="2";
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft=false;
             PlayerSettings.allowedAutorotateToLandscapeRight=false;

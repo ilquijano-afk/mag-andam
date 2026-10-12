@@ -1,12 +1,14 @@
 # Test ANDAM on your own iPhone for free
 
+The current route uses Sideloadly, with Xcode signing left unconfigured as requested. Use [the Sideloadly guide](Sideloadly-Testing.md) for the rebuilt 0.6.1 IPA. The Personal Team instructions below are an optional alternative.
+
 Use Xcode's **Personal Team** with a regular Apple account. This installs the game directly on your own device. Apple's free provisioning profiles expire after seven days; build and install again to renew the test app. A cloud-signed IPA and TestFlight require an enrolled Apple Developer Program team.
 
 ## Prepared game project
 
 Open `Builds/iOS/Xcode/Unity-iPhone.xcodeproj` in a compatible Xcode version. The game successfully exported with Unity 6000.6.5f1. Its bundle ID is `org.andamlapulapu.readysetresilient`; it uses IL2CPP, Metal, portrait orientation and minimum iOS 15.0.
 
-The local native project is prepared for automatic signing. No Personal Team has been selected yet. A backup of the original native signing settings is at `Builds/iOS/Unity-iPhone-before-local-signing.pbxproj`. The earlier Xcode export ZIP preserves the original export.
+The local native project has no Personal Team selected. A backup of the previous native signing settings is at `Builds/iOS/Unity-iPhone-before-local-signing.pbxproj`.
 
 This Mac has macOS 26.2. Xcode 26.6 supports it; the App Store's Xcode 27 requires macOS 26.6 or later. Apple's **Xcode 26.6 Apple silicon.xip** is the compatible download selected for this Mac.
 

@@ -15,12 +15,14 @@
   "bundle_identifier": "org.andamlapulapu.readysetresilient",
   "minimum_ios_version": "15.0",
   "scene": "Assets/Scenes/MainGame.unity",
-  "development_build": true,
+  "development_build": false,
   "scripting_backend": "IL2CPP",
   "graphics_api": "Metal",
   "orientation": "Portrait",
   "pre_export_method": "AndamRunnerEditor.IOSBuildTools.Configure",
   "signing": "Apple Development .p12 and matching iOS App Development .mobileprovision",
   "status": "Unity export and GitHub upload succeeded; cloud repository connection saved; iOS target draft requires Apple signing files before it can be saved",
-  "repository": "https://github.com/ilquijano-afk/mag-andam"
+  "repository": "https://github.com/ilquijano-afk/mag-andam",
+  "player_version": "0.6.1",
+  "player_build_number": "2"
 }

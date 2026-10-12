@@ -18,7 +18,7 @@ The game source is uploaded and the cloud repository connection is saved. Unity 
 | Unity | 6000.6.5f1 |
 | Project subfolder | Empty / repository root |
 | Scene | Assets/Scenes/MainGame.unity |
-| Development Build | Enabled |
+| Development Build | Disabled (release player; no developer console) |
 | Backend | IL2CPP |
 | Graphics | Metal |
 | Minimum iOS | 15.0 |
