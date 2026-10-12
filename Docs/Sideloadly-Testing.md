@@ -2,6 +2,8 @@
 
 Use `Builds/iOS/ReadySetResilient-0.6.1-Sideloadly.ipa` — version 0.6.1, build 2. The `Sideloadly-Compatible` and `Sideloadly-Unsigned` filenames also contain this release build.
 
+This build was installed successfully over the existing game and its launch was verified. Automated Unity checks passed; physical-device gesture and appearance checks remain manual.
+
 1. Connect IQ17 by USB, unlock it and open Sideloadly.
 2. Load the IPA above and select **IQ17**, using the same Apple account as the installed game.
 3. Click **Start** and wait for **Done. 100%**. Install over the existing app to keep its scores.

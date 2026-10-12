@@ -53,4 +53,4 @@ The private `.key` stays in the separate `iOS-Signing` folder, with owner-only f
 - `Builds/iOS/Unity-export-status.txt`: successful Unity export status.
 - `Docs/Editor-ios-export.log`: actual Unity build/export log.
 
-Both ZIPs passed integrity checks. Neither is an IPA. No iPhone installation or physical-device test has been performed yet. The signed IPA will only run on devices included in its development provisioning profile; enable Developer Mode when required by iOS.
+Both ZIPs passed integrity checks and have been refreshed for version 0.6.1. Neither is an IPA. The local Sideloadly build was installed and its launch verified; see [the Sideloadly guide](Sideloadly-Testing.md). Cloud signing and physical-device gameplay checks remain pending. A cloud development IPA will only run on devices included in its provisioning profile; enable Developer Mode when required by iOS.

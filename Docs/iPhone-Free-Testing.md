@@ -25,6 +25,6 @@ Leave the phone connected while Xcode builds, installs and starts the game. The 
 
 ## Device check
 
-Once installed, check the splash screen and menu, swipe through all three lanes, jump and duck, collect a supply and a distractor, collide with an obstacle, and check the centered score and local leaderboard. Device installation and gameplay verification are still pending.
+Version 0.6.1 (build 2) was installed through Sideloadly and its launch was verified. Check the splash screen and menu, swipe through all three lanes, jump and duck, collect a supply and a distractor, collide with an obstacle, and check the centered score and local leaderboard. Physical-device gameplay and visual checks remain manual.
 
 Apple's [developer account guide](https://developer.apple.com/help/account/basics/about-your-developer-account) documents Personal Team testing and its limits. The [Xcode compatibility table](https://developer.apple.com/xcode/system-requirements) lists supported macOS versions. Compatible installers are available through [Apple's downloads page](https://developer.apple.com/download/all/?q=Xcode%2026.6).
