@@ -112,6 +112,7 @@ namespace AndamRunnerEditor
         private static void CheckNewItems(GameManager game)
         {
             game.StartRun();
+            game.Spawner.ClearForChecks();
             game.Spawner.SpawnSupply(SupplyKind.Cash,1,.1f); game.Simulate(.1f);
             Check(game.Session.Score==10 && game.Session.UniqueSupplies==1,"actual cash pickup earns points and checklist type");
             game.Spawner.SpawnSupply(SupplyKind.Food,1,.1f); game.Simulate(.1f);
@@ -161,14 +162,14 @@ namespace AndamRunnerEditor
         private static void CheckPace()
         {
             var pace=new RunPace();
-            pace.Advance(249); Check(pace.Speed==18,"doubled starting speed is constant before 250 meters");
-            pace.Advance(1); Check(pace.Speed==19.5f && pace.NextMilestone==500,"first speed step at exactly 250 meters");
-            pace.Advance(250); Check(pace.Speed==21,"second speed step at exactly 500 meters");
-            pace.Advance(1250); Check(pace.Speed==26 && pace.Distance==1750,"large distance steps process milestones and cap speed");
-            pace.ResetSpeed(); Check(pace.Speed==18 && pace.Distance==1750 && pace.NextMilestone==2000,"bump preserves distance and the next global milestone");
-            pace.Advance(249); Check(pace.Speed==18,"speed stays reset until next milestone");
-            pace.Advance(1); Check(pace.Speed==19.5f,"boost resumes from base at next milestone after a bump");
-            pace.Restart(); Check(pace.Distance==0 && pace.Speed==18 && pace.NextMilestone==250,"new run resets pace");
+            pace.Advance(249); Check(pace.Speed==RunPace.BaseSpeed,"configured starting speed is constant before 250 meters");
+            pace.Advance(1); Check(pace.Speed==Mathf.Min(RunPace.MaximumSpeed,RunPace.BaseSpeed+RunPace.SpeedStep) && pace.NextMilestone==500,"first speed step at exactly 250 meters");
+            pace.Advance(250); Check(pace.Speed==Mathf.Min(RunPace.MaximumSpeed,RunPace.BaseSpeed+2*RunPace.SpeedStep),"second speed step at exactly 500 meters");
+            pace.Advance(1250); Check(pace.Speed==Mathf.Min(RunPace.MaximumSpeed,RunPace.BaseSpeed+6*RunPace.SpeedStep) && pace.Distance==1750,"large distance steps process milestones and cap speed");
+            pace.ResetSpeed(); Check(pace.Speed==RunPace.BaseSpeed && pace.Distance==1750 && pace.NextMilestone==2000,"bump preserves distance and the next global milestone");
+            pace.Advance(249); Check(pace.Speed==RunPace.BaseSpeed,"speed stays reset until next milestone");
+            pace.Advance(1); Check(pace.Speed==Mathf.Min(RunPace.MaximumSpeed,RunPace.BaseSpeed+RunPace.SpeedStep),"boost resumes from base at next milestone after a bump");
+            pace.Restart(); Check(pace.Distance==0 && pace.Speed==RunPace.BaseSpeed && pace.NextMilestone==250,"new run resets pace");
         }
 
         private static void CheckDuck(GameManager game)
@@ -200,9 +201,9 @@ namespace AndamRunnerEditor
             Check(game.Session.Lives==3,"actual duck avoids full-width contact");
             game.Simulate(1.1f); Check(game.Session.Lives==3 && !game.Player.IsDucking,"cable stays cleared after passing and standing up");
             game.StartRun(); game.Pace.Advance(250); game.Spawner.SpawnHazard(HazardKind.HangingCable,0,.1f); game.Simulate(.1f);
-            Check(game.Session.Lives==2 && game.Speed==18 && game.Distance>250,"one full-width hit deducts one life and resets speed");
+            Check(game.Session.Lives==2 && game.Speed==RunPace.BaseSpeed && game.Distance>250,"one full-width hit deducts one life and resets speed");
             game.Pace.Advance(250); game.Hit(HazardKind.Debris);
-            Check(game.Session.Lives==2 && game.Speed==18,"grace prevents another life loss while every bump still resets speed");
+            Check(game.Session.Lives==2 && game.Speed==RunPace.BaseSpeed,"grace prevents another life loss while every bump still resets speed");
             game.StartRun(); Click(game,"DUCK"); Check(game.Player.IsDucking,"touch duck button is connected");
             game.StartRun(); Check(!game.Player.IsDucking,"restart clears duck state");
             Check(Camera.main.GetComponent<CoastalIllustrationBackground>().Storm,"gameplay uses the storm evacuation backdrop");

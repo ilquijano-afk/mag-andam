@@ -14,8 +14,7 @@ namespace AndamRunner
         public MenuPage CurrentPage { get; private set; }
         private InputField nickname;
         public string Nickname => nickname != null ? nickname.text : "OPONG";
-        private Text score, lives, distance, speed, meter, feedback, resultsScore, resultsSummary, homeAction;
-        private readonly Image[] checklist = new Image[PreparednessContent.SupplyCount];
+        private Text score, lives, distance, speed, feedback, resultsScore, resultsSummary, homeAction;
         private Image feedbackBackground;
         private float feedbackUntil;
         private int lastDistance=-1;
@@ -73,24 +72,15 @@ namespace AndamRunner
             distance=TextLabel(top,"0 m",.45f,.23f,.77f,.51f,22,PreparednessContent.Mint);
             speed=TextLabel(top,"SPEED  "+RunPace.BaseSpeed+" m/s",.45f,.005f,.77f,.23f,15,White);
             ButtonAt(top,"II",.82f,.13f,.97f,.86f,PreparednessContent.Teal,game.TogglePause,25);
-            RectTransform kit=Card("Preparedness checklist",new Vector2(.03f,.805f),new Vector2(.97f,.88f),Panel,hud.transform);
-            meter=TextLabel(kit,"GO-BAG CHECKLIST  0 / "+PreparednessContent.SupplyCount,.04f,.53f,.96f,.96f,20,PreparednessContent.Ink,true,TextAnchor.MiddleLeft);
-            string[] symbols=PreparednessContent.SupplySymbols;
-            float slot=.92f/checklist.Length;
-            for(int i=0;i<checklist.Length;i++)
-            {
-                float x=.04f+i*slot;
-                RectTransform block=Card("Checklist "+symbols[i],new Vector2(x,.09f),new Vector2(x+slot-.008f,.48f),new Color32(211,222,219,255),kit);
-                checklist[i]=block.GetComponent<Image>(); TextLabel(block,symbols[i],.01f,.02f,.99f,.98f,15,PreparednessContent.Ink,true);
-            }
             RectTransform message=Card("Learning feedback",new Vector2(.035f,.135f),new Vector2(.965f,.25f),Panel,hud.transform);
             feedbackBackground=message.GetComponent<Image>();
             feedback=TextLabel(message,"",.04f,.06f,.96f,.94f,24,PreparednessContent.Ink,true);
+            ClearFeedback();
             ButtonAt(hud.transform,"< LEFT",.035f,.035f,.255f,.115f,DarkPanel,()=>game.Move(-1),23);
             ButtonAt(hud.transform,"JUMP",.272f,.035f,.492f,.115f,PreparednessContent.Teal,game.Jump,23);
             ButtonAt(hud.transform,"DUCK",.509f,.035f,.729f,.115f,PreparednessContent.Teal,game.Duck,23);
             ButtonAt(hud.transform,"RIGHT >",.746f,.035f,.966f,.115f,DarkPanel,()=>game.Move(1),23);
-            RectTransform route=Card("Evacuation route",new Vector2(.10f,.765f),new Vector2(.90f,.797f),DarkPanel,hud.transform);
+            RectTransform route=Card("Evacuation route",new Vector2(.10f,.845f),new Vector2(.90f,.877f),DarkPanel,hud.transform);
             TextLabel(route,"TO THE EVACUATION CENTER",.025f,.02f,.975f,.98f,16,White,true);
         }
 
@@ -161,8 +151,6 @@ namespace AndamRunner
         public void Refresh()
         {
             score.text=game.Session.Score.ToString(); lives.text=$"LIVES  {game.Session.Lives} / 3";
-            meter.text=$"GO-BAG CHECKLIST  {game.Session.UniqueSupplies} / {PreparednessContent.SupplyCount}";
-            for(int i=0;i<checklist.Length;i++) checklist[i].color=(game.Session.SupplyMask & (1<<i))!=0 ? PreparednessContent.Mint : new Color32(211,222,219,255);
             lastDistance=-1; RefreshDistance();
         }
         public void RefreshDistance()
@@ -177,6 +165,12 @@ namespace AndamRunner
             feedback.text=message;
             feedbackBackground.color=positive ? Panel : new Color32(255,225,191,252);
             feedbackBackground.gameObject.SetActive(true); feedbackUntil=Time.unscaledTime+4.5f;
+        }
+
+        public void ClearFeedback()
+        {
+            feedback.text="";
+            feedbackBackground.gameObject.SetActive(false);
         }
 
         private static RectTransform Rect(Transform parent,string name,Vector2 min,Vector2 max)

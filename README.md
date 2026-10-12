@@ -2,7 +2,7 @@
 
 **Resilience Starts at Home** · ANDAM Lapu-Lapu · IDDRR prototype
 
-Opong rides his white shield along a fictional coastal road toward an evacuation center in Lapu-Lapu City, Cebu. Version 0.6 adds a stormy 3D-style illustration, rain, wind-bent palms, a choppy sea behind the seawall and a warmly lit shelter ahead. The rounded supplies, hazards and chibi character follow the supplied runner sheet. Cash and non-perishable food expand the checklist to nine supplies; five distractors deduct 5 points without costing a life. Speed rises at every 250-meter milestone, and bumps reset it to starting speed. A full-width hanging cable requires a duck. Floating object names remain removed; the HUD retains learning feedback and the supply checklist.
+Opong rides his white shield along a fictional coastal road toward an evacuation center in Lapu-Lapu City, Cebu. Version 0.6 adds a stormy 3D-style illustration, rain, wind-bent palms, a choppy sea behind the seawall and a warmly lit shelter ahead. The rounded supplies, hazards and chibi character follow the supplied runner sheet. Nine useful supplies earn points; five distractors deduct 5 points without costing a life. Speed rises at every 250-meter milestone, and bumps reset it to starting speed. A full-width hanging cable requires a duck. Version 0.6.2 removes the street checklist and item collection popups; scores, lives, distance, speed, controls and obstacle warnings remain visible.
 
 Developed by: **UP Cebu Center for Environmental Informatics**, in partnership with the **City of Lapu-Lapu Disaster Risk Reduction and Management Department**.
 
@@ -30,13 +30,13 @@ To change item or obstacle artwork, edit **Assets/AndamRunner/Scripts/RunnerRefe
 ## What is playable
 
 - Endless forward motion with three lanes, jumps, timed ducks and 250-meter speed steps.
-- Nine recognizable supplies, points, and a checklist of distinct supply types.
+- Nine recognizable supplies and points; distinct supply types are tracked for results and leaderboard ranking.
 - Gym equipment, a bulky toy, beer, makeup and a game console as orange-marked distractors. Each deducts up to 5 points, with no life loss or speed reset.
 - Three lives; every accepted hazard collision deducts a life and up to 10 points. Score never goes below zero.
 - A short grace period after damage; each object can trigger only once.
 - Credits splash, main menu, instructions, game information, full credits, leaderboard, HUD, pause, results, and restart screens; touch swipes and large touch buttons.
 - A persistent top-ten leaderboard on this device. Finished runs save automatically, with score, distinct supply types, distance, and nickname. Ranking uses score, then supply types, then distance; older runs win an exact tie.
-- Learning feedback for each supply and collision; a home action to do with an adult after each run.
+- Obstacle warnings and collision feedback; a home action to do with an adult after each run. Collecting items updates the score without an information popup.
 - Road chunks and item/hazard pools recycle; the player stays near the origin instead of accumulating floating-point error.
 - Phone safe-area support; offline play with bundled artwork; no account, ads, purchases, analytics, or runtime art downloads.
 
@@ -68,7 +68,7 @@ The leaderboard is **local to each device**, with no server or account required.
 
 **Duck** beneath the low blue hanging cable with three downward-arrow signs. It spans all three lanes, so changing lanes cannot bypass it. Duck lasts 1.1 seconds; it cannot start in the air or be prolonged by repeated input. Neighboring rows contain supplies without ground hazards, providing time to recover.
 
-Starting speed is **18 m/s**, twice the original 9. At **250 m, 500 m, 750 m**, and each subsequent 250-meter milestone, speed rises by **1.5 m/s**, up to **26 m/s**. Any obstacle contact resets speed to 18 m/s while retaining run distance; collision damage still uses the existing lives, point penalty and grace period. Speed increases again at the next global distance milestone. For example, a bump at 320 m leaves the next increase to 19.5 m/s at 500 m.
+The current user-edited settings start at **24 m/s**, add **2 m/s** every **250 meters**, and set a ceiling of **46 m/s**. The existing six-boost limit currently makes the highest reachable speed **36 m/s**. Edit these values in `Assets/AndamRunner/Scripts/RunPace.cs`; its `Level` clamp controls the boost limit. Any obstacle contact resets speed to the starting value while retaining run distance. Speed increases again at the next global milestone.
 
 Mint markers and stars identify useful supplies. Orange markers identify distractors: each deducts up to 5 points, never reduces lives or speed, and does not fill the checklist. A bulky toy is the game example; a small comfort item may belong in a family kit after essentials.
 
@@ -101,10 +101,10 @@ If the last command reports the activity does not exist, launch the installed ga
 ## Test on the phone before the event
 
 1. Start a run. Swipe left/right in the open game area and up to jump. Test the touch buttons too.
-2. Collect a center-lane go-bag: score becomes 20 and BAG fills in. Collect cash (+10) and food (+15); CASH and FOOD fill in. Collect an orange distractor: lose up to 5 points, with lives and speed unchanged.
+2. Collect a center-lane go-bag: score becomes 20. Collect cash (+10) and food (+15). Collect an orange distractor: lose up to 5 points, with lives and speed unchanged. These pickups should not show information popups, and there should be no go-bag checklist panel in the street.
 3. Jump over each regular ground obstacle, including the short flood and downed wires. Change lanes for the long flood streak. A mistimed jump or collision costs one life, up to 10 points, and resets speed. Swipe down or tap DUCK for the low blue cable across all lanes; check that one cable cannot deduct three lives.
 4. Lose all three lives. Check the supplied score page shows the live score, distance and supplies inside its yellow panel. Test Play Again, About, Credits, Main Menu and Scores.
-5. Tap RIDE AGAIN. Check zero score, three lives, center lane, and a fresh checklist.
+5. Tap PLAY AGAIN. Check zero score, three lives, center lane, and a new run.
 6. Pause/resume, then background and reopen the app. It should pause safely. Check that text and controls clear the phone's notch and navigation area.
 7. Play for five minutes. Check continuous spawning, recognizable symbols, the stormy shelter route and learning feedback. Confirm the speed indicator steps at 250-meter milestones and resets after a bump. Test without internet and with sound muted.
 8. Open the leaderboard from Results and return to Results. Return to the menu and explore instructions, About, and credits. Check that the invisible tap areas match the painted buttons on your phone.

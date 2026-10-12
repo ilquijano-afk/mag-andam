@@ -1,8 +1,8 @@
 # Install the updated iPhone game
 
-Use `Builds/iOS/ReadySetResilient-0.6.1-Sideloadly.ipa` — version 0.6.1, build 2. The `Sideloadly-Compatible` and `Sideloadly-Unsigned` filenames also contain this release build.
+Use `Builds/iOS/ReadySetResilient-0.6.2-Sideloadly.ipa` — version 0.6.2, build 3. The `Sideloadly-Compatible` and `Sideloadly-Unsigned` filenames also contain this release build. This version removes the street checklist and item collection popups.
 
-This build was installed successfully over the existing game and its launch was verified. Automated Unity checks passed; physical-device gesture and appearance checks remain manual.
+Automated Unity checks and native compilation passed. Device installation and launch results are recorded locally in `Builds/iOS/Sideloadly-install-status.txt`; physical-device gesture and appearance checks remain manual.
 
 1. Connect IQ17 by USB, unlock it and open Sideloadly.
 2. Load the IPA above and select **IQ17**, using the same Apple account as the installed game.
@@ -17,8 +17,8 @@ To package a future unsigned native build, run the helper from the Unity project
 ```bash
 python3 Tools/package-sideloadly-ipa.py \
   Builds/iOS/LocalDerivedData/Build/Products/ReleaseForRunning-iphoneos/ReadySetResilient.app \
-  Builds/iOS/ReadySetResilient-0.6.1-Sideloadly.ipa \
-  --expected-version 0.6.1 --expected-build 2
+  Builds/iOS/ReadySetResilient-0.6.2-Sideloadly.ipa \
+  --expected-version 0.6.2 --expected-build 3
 ```
 
-The helper verifies the package and writes a JSON report beside the IPA. Unity gameplay and layout checks are recorded in `Docs/Jump-Validation.txt`; native compilation is recorded in `Docs/Xcode-release-compile.log`.
+The helper verifies the package and writes a JSON report beside the IPA. Unity gameplay and rendered layout checks are recorded in `Docs/HUD-cleanup-validation.log`; native compilation is recorded in `Docs/Xcode-v0.6.2-compile.log`.

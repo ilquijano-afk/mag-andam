@@ -74,6 +74,15 @@ namespace AndamRunner
             SpawnHazard(HazardKind.PowerLine,1,62f);
         }
 
+        #if UNITY_EDITOR
+        // Isolate an obstacle check from tutorial rows when designers change the run speed.
+        public void ClearForChecks()
+        {
+            foreach(TrackEntity entity in pool) entity.gameObject.SetActive(false);
+            active.Clear(); untilNextRow=10000f;
+        }
+        #endif
+
         public void Tick(float delta, float speed, PlayerRunner player, GameManager game, Vector3 playerFrom,float duckBefore=0)
         {
             float step = delta * speed;

@@ -91,7 +91,7 @@ namespace AndamRunnerEditor
         private static void ConfigureSettings()
         {
             PlayerSettings.companyName="ANDAM Lapu-Lapu"; PlayerSettings.productName="Ready Set Resilient";
-            PlayerSettings.bundleVersion="0.6.1"; PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"org.andamlapulapu.readysetresilient");
+            PlayerSettings.bundleVersion="0.6.2"; PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"org.andamlapulapu.readysetresilient");
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft=false; PlayerSettings.allowedAutorotateToLandscapeRight=false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown=false;

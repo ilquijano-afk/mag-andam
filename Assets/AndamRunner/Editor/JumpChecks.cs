@@ -96,7 +96,7 @@ namespace AndamRunnerEditor
 
         private static void Ready(GameManager game,int lane,int level)
         {
-            game.StartRun(); game.Player.ChangeLane(lane-1); game.Player.Tick(.2f,false);
+            game.StartRun(); game.Spawner.ClearForChecks(); game.Player.ChangeLane(lane-1); game.Player.Tick(.2f,false);
             game.Pace.Advance(level*RunPace.Milestone);
         }
         private static void PressJump(GameManager game)
@@ -153,8 +153,10 @@ namespace AndamRunnerEditor
         }
         private static void CheckLongFloods(GameManager game)
         {
-            Check(PreparednessContent.FloodStreakLength>RunPace.MaximumSpeed*PlayerRunner.JumpDuration,
-                "long flood is wider than the longest possible jump");
+            float fastest=Mathf.Min(RunPace.MaximumSpeed,RunPace.BaseSpeed+6*RunPace.SpeedStep);
+            float waterClearanceTime=PlayerRunner.JumpDuration*(1-2*Mathf.Asin(.75f/PlayerRunner.JumpHeight)/Mathf.PI);
+            Check(PreparednessContent.FloodStreakLength>fastest*waterClearanceTime,
+                "long flood exceeds the distance a jump can clear above the water");
             foreach(int level in new[]{0,6})
                 for(int lane=0;lane<3;lane++)
                 {
@@ -168,6 +170,7 @@ namespace AndamRunnerEditor
                     Check(game.Session.Lives==3,"lane change clears the long flood");
                 }
             Ready(game,1,0);
+            game.Spawner.ResetTrack();
             game.Player.transform.position=new Vector3(100,0,0);
             bool seen=false;
             for(int step=0;step<1200;step++)

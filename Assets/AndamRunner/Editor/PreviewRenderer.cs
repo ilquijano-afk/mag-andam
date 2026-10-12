@@ -122,7 +122,7 @@ namespace AndamRunnerEditor
             if(game.State==RunState.Playing)
             {
                 if(camera.WorldToViewportPoint(new Vector3(game.Player.transform.position.x,.15f,-1.35f)).y<=.25f) throw new Exception("The shield must clear the learning message.");
-                if(camera.WorldToViewportPoint(new Vector3(0,3.04f+PlayerRunner.JumpHeight,0)).y>=.80f) throw new Exception("The jump silhouette must clear the checklist.");
+                if(camera.WorldToViewportPoint(new Vector3(0,3.04f+PlayerRunner.JumpHeight,0)).y>=.84f) throw new Exception("The jump silhouette must clear the evacuation route banner.");
             }
             canvas.renderMode=RenderMode.ScreenSpaceCamera; canvas.worldCamera=camera; canvas.planeDistance=.5f;
             scaler.enabled=false; canvas.scaleFactor=1;
@@ -175,7 +175,6 @@ namespace AndamRunnerEditor
                 if(entity.IsSupply && entity.Supply==SupplyKind.GoBag && entity.Lane==1) entity.Consume();
             game.Spawner.SpawnSupply(SupplyKind.Cash,0,15); game.Spawner.SpawnSupply(SupplyKind.Food,1,18);
             game.Spawner.SpawnDistractor(DistractorKind.Toys,2,16);
-            game.Feedback("MINT: EMERGENCY SUPPLIES\nORANGE: DISTRACTORS -5 POINTS, NO LOST LIFE",true);
             CapturePhoneSizes(game,"23-Gameplay-NewItems");
             game.Collect(SupplyKind.Cash); game.Collect(SupplyKind.Food); game.CollectDistractor(DistractorKind.Toys);
             Capture(game,"24-Gameplay-DistractorFeedback");

@@ -97,7 +97,7 @@ namespace AndamRunner
             Session.Reset(); Pace.Restart(); GraceRemaining=0;
             Player.ResetRunner(); Player.Show(); Spawner.ResetTrack(); Road.ResetRoad(); follow.SetPresentation(false); follow.ResetCamera(); input.ResetGesture();
             State=RunState.Playing; UI.ShowPlay(); UI.Refresh();
-            Feedback("Andam, Opong! Collect mint-marked supplies.\nOrange-marked distractors cost 5 points. Follow the open route.",true);
+            UI.ClearFeedback();
         }
 
         public void ReturnToMenu()
@@ -121,7 +121,6 @@ namespace AndamRunner
         {
             if(State!=RunState.Playing) return;
             Session.Collect(kind); UI.Refresh(); Player.Visual.GetComponent<OpongAnimation>().ReactToPickup();
-            Feedback("+"+PreparednessContent.Points[(int)kind]+"  "+PreparednessContent.SupplyNames[(int)kind]+"\n"+PreparednessContent.SupplyTips[(int)kind],true);
         }
 
         public void Hit(HazardKind kind)
@@ -137,7 +136,6 @@ namespace AndamRunner
         {
             if(State!=RunState.Playing) return;
             Session.CollectDistractor(kind); UI.Refresh(); Player.Visual.GetComponent<OpongAnimation>().ReactToDistractor();
-            Feedback("-"+PreparednessContent.DistractorPenalty+"  "+PreparednessContent.DistractorNames[(int)kind]+"\n"+PreparednessContent.DistractorTips[(int)kind],false);
         }
         public void Feedback(string message,bool positive) { UI.Feedback(message,positive); }
 
