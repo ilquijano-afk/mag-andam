@@ -2,11 +2,15 @@
 
 The current game successfully exported its native iOS project with Unity 6000.6.5f1. This export includes the latest artwork, nine useful supplies, five distractors and the centered results score. Apple signing and the remote native compilation are still pending.
 
+This cloud workflow requires an enrolled Apple Developer Program team. For free testing with a regular Apple account, use [the local iPhone testing guide](iPhone-Free-Testing.md).
+
 ## Unity Build Automation
 
 Cloud project: **ReadySetResilient-an**, project ID `c1e3aafc-56b3-4ba5-9ec0-dbde9b9150d2`.
 
 Repository: `https://github.com/ilquijano-afk/mag-andam`, branch `main`. Put the Unity project at the repository root. The source snapshot contains Assets, Packages and ProjectSettings; cache/build folders and signing credentials are excluded.
+
+The game source is uploaded and the cloud repository connection is saved. Unity uses a read-only deploy key for this repository. The iOS target is prepared in the browser, but cannot be saved until the signing files are supplied. Automatic builds and recurring schedules are disabled.
 
 | Build setting | Value |
 | --- | --- |
@@ -19,7 +23,8 @@ Repository: `https://github.com/ilquijano-afk/mag-andam`, branch `main`. Put the
 | Graphics | Metal |
 | Minimum iOS | 15.0 |
 | Bundle identifier | org.andamlapulapu.readysetresilient |
-| Xcode | 16 or later; select a supported version available on the hosted Mac |
+| Builder | macOS Tahoe, Apple Silicon, Mac Standard (free tier eligible) |
+| Xcode | 26.5.0, offered by the cloud builder |
 | Pre-export method | AndamRunnerEditor.IOSBuildTools.Configure |
 | Signing | Apple Development .p12 and matching iOS App Development .mobileprovision |
 
@@ -35,6 +40,8 @@ A verified certificate signing request is saved outside the game project at `../
 4. Run `python3 Tools/create-ios-p12.py /absolute/path/to/the/downloaded.cer` from the game project folder. Choose a password when prompted. The tool validates that Apple's certificate matches the local private key and writes the password-protected `.p12` into `../iOS-Signing`.
 5. In the Developer website, register App ID `org.andamlapulapu.readysetresilient` and the test iPhone/iPad UDIDs. Create an **iOS App Development** profile for that App ID, certificate and those devices; download its `.mobileprovision`.
 6. Add the `.p12`, its password and the `.mobileprovision` to the cloud build's signing credentials. Enter the password directly into the credential form. Then run the iOS development build and download its signed IPA after the build succeeds.
+
+If the target draft has to be recreated, name it **ANDAM iOS Development**, choose the settings above, and name the new credentials set **ANDAM iOS Development**. Use **Save configuration** before starting a manual build. The cloud UI will not save an iOS target without both signing files.
 
 The private `.key` stays in the separate `iOS-Signing` folder, with owner-only file permissions. It is needed to make the `.p12`; it is not included in either source ZIP or the Git repository. The `.p12` is a signing credential and belongs in the cloud credential form, separate from source files.
 

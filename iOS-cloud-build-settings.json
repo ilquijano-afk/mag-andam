@@ -5,7 +5,13 @@
   "platform": "iOS",
   "unity_version": "6000.6.5f1",
   "minimum_xcode_version": "16",
-  "recommended_xcode": "Newest supported version available on the cloud Mac",
+  "selected_xcode": "26.5.0",
+  "builder_os": "macOS Tahoe",
+  "unity_editor_architecture": "Apple-Silicon",
+  "machine": "Mac Standard (free tier eligible)",
+  "target_name": "ANDAM iOS Development",
+  "auto_build": false,
+  "recurring_schedule": false,
   "bundle_identifier": "org.andamlapulapu.readysetresilient",
   "minimum_ios_version": "15.0",
   "scene": "Assets/Scenes/MainGame.unity",
@@ -15,6 +21,6 @@
   "orientation": "Portrait",
   "pre_export_method": "AndamRunnerEditor.IOSBuildTools.Configure",
   "signing": "Apple Development .p12 and matching iOS App Development .mobileprovision",
-  "status": "Unity native export succeeded; repository connection and Apple signing credentials pending",
+  "status": "Unity export and GitHub upload succeeded; cloud repository connection saved; iOS target draft requires Apple signing files before it can be saved",
   "repository": "https://github.com/ilquijano-afk/mag-andam"
 }
