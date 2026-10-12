@@ -1,0 +1,20 @@
+{
+  "project_name": "ReadySetResilient-an",
+  "unity_cloud_project_id": "c1e3aafc-56b3-4ba5-9ec0-dbde9b9150d2",
+  "unity_cloud_organization_id": "18968518510852",
+  "platform": "iOS",
+  "unity_version": "6000.6.5f1",
+  "minimum_xcode_version": "16",
+  "recommended_xcode": "Newest supported version available on the cloud Mac",
+  "bundle_identifier": "org.andamlapulapu.readysetresilient",
+  "minimum_ios_version": "15.0",
+  "scene": "Assets/Scenes/MainGame.unity",
+  "development_build": true,
+  "scripting_backend": "IL2CPP",
+  "graphics_api": "Metal",
+  "orientation": "Portrait",
+  "pre_export_method": "AndamRunnerEditor.IOSBuildTools.Configure",
+  "signing": "Apple Development .p12 and matching iOS App Development .mobileprovision",
+  "status": "Unity native export succeeded; repository connection and Apple signing credentials pending",
+  "repository": "https://github.com/ilquijano-afk/mag-andam"
+}

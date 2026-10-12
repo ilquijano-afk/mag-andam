@@ -1,0 +1,16 @@
+{
+  "presentedBy": "ANDAM LAPU-LAPU",
+  "theme": "Resilience Starts at Home",
+  "developer": "UP Cebu Center for Environmental Informatics",
+  "partner": "City of Lapu-Lapu Disaster Risk Reduction and Management Department",
+  "description": "Help Opong Andam follow a coastal route toward an evacuation center as a storm approaches Lapu-Lapu City, Cebu. Collect emergency supplies, choose open lanes, and bring a preparedness lesson home.",
+  "credits": [
+    { "heading": "DEVELOPED BY", "names": "UP Cebu Center for Environmental Informatics" },
+    { "heading": "IN PARTNERSHIP WITH", "names": "City of Lapu-Lapu Disaster Risk Reduction and Management Department" },
+    { "heading": "PROJECT", "names": "ANDAM Lapu-Lapu\nCommunity resilience game" },
+    { "heading": "STARRING", "names": "Opong\nCharacter and shield based on the supplied ANDAM mascot" },
+    { "heading": "OCCASION", "names": "International Day for Disaster Risk Reduction" },
+    { "heading": "EDUCATIONAL REFERENCES", "names": "DOST-PHIVOLCS / CDC / FEMA" },
+    { "heading": "GAME ENGINE", "names": "Made with Unity" }
+  ]
+}
