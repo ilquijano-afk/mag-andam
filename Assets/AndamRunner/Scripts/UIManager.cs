@@ -15,6 +15,8 @@ namespace AndamRunner
         private InputField nickname;
         public string Nickname => nickname != null ? nickname.text : "OPONG";
         private Text score, lives, distance, speed, feedback, resultsScore, resultsSummary, homeAction;
+        private Text powerUpStatus;
+        private int lastMultiplier=-1,lastMultiplierSeconds=-1,lastMagnetSeconds=-1;
         private Image feedbackBackground;
         private float feedbackUntil;
         private int lastDistance=-1;
@@ -82,6 +84,9 @@ namespace AndamRunner
             ButtonAt(hud.transform,"RIGHT >",.746f,.035f,.966f,.115f,DarkPanel,()=>game.Move(1),23);
             RectTransform route=Card("Evacuation route",new Vector2(.10f,.845f),new Vector2(.90f,.877f),DarkPanel,hud.transform);
             TextLabel(route,"TO THE EVACUATION CENTER",.025f,.02f,.975f,.98f,16,White,true);
+            powerUpStatus=TextLabel(hud.transform,"Power-up status",.10f,.807f,.90f,.842f,22,White,true);
+            powerUpStatus.gameObject.AddComponent<Outline>().effectColor=PreparednessContent.Ink;
+            RefreshPowerUps();
         }
 
         private void BuildResults()
@@ -152,6 +157,7 @@ namespace AndamRunner
         {
             score.text=game.Session.Score.ToString(); lives.text=$"LIVES  {game.Session.Lives} / 3";
             lastDistance=-1; RefreshDistance();
+            RefreshPowerUps();
         }
         public void RefreshDistance()
         {
@@ -171,6 +177,18 @@ namespace AndamRunner
         {
             feedback.text="";
             feedbackBackground.gameObject.SetActive(false);
+        }
+
+        public void RefreshPowerUps()
+        {
+            int multiplier=game.PowerUps.ScoreMultiplier;
+            int seconds=Mathf.CeilToInt(game.PowerUps.MultiplierRemaining);
+            int magnetSeconds=Mathf.CeilToInt(game.PowerUps.Remaining(PowerUpKind.Magnet));
+            if(multiplier==lastMultiplier && seconds==lastMultiplierSeconds && magnetSeconds==lastMagnetSeconds) return;
+            lastMultiplier=multiplier; lastMultiplierSeconds=seconds; lastMagnetSeconds=magnetSeconds;
+            powerUpStatus.gameObject.SetActive(multiplier>1 || magnetSeconds>0);
+            powerUpStatus.text=(multiplier>1 ? multiplier+"× SCORE  "+seconds+"s" : "")+
+                (multiplier>1 && magnetSeconds>0 ? "    •    " : "")+(magnetSeconds>0 ? "MAGNET  "+magnetSeconds+"s" : "");
         }
 
         private static RectTransform Rect(Transform parent,string name,Vector2 min,Vector2 max)

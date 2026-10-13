@@ -25,12 +25,13 @@ namespace AndamRunner
             DistractorsCollected = 0;
         }
 
-        public void Collect(SupplyKind kind)
+        public void Collect(SupplyKind kind,int multiplier=1)
         {
             int index = (int)kind;
             if (index < 0 || index >= PreparednessContent.SupplyCount) throw new ArgumentOutOfRangeException(nameof(kind));
+            if(multiplier!=1 && multiplier!=2 && multiplier!=4 && multiplier!=8) throw new ArgumentOutOfRangeException(nameof(multiplier));
             if (IsOver) return;
-            Score += PreparednessContent.Points[index];
+            Score += PreparednessContent.Points[index]*multiplier;
             Collected++;
             int bit = 1 << index;
             if ((SupplyMask & bit) == 0) UniqueSupplies++;

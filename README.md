@@ -2,7 +2,7 @@
 
 **Resilience Starts at Home** · ANDAM Lapu-Lapu · IDDRR prototype
 
-Opong rides his white shield along a fictional coastal road toward an evacuation center in Lapu-Lapu City, Cebu. Version 0.6 adds a stormy 3D-style illustration, rain, wind-bent palms, a choppy sea behind the seawall and a warmly lit shelter ahead. The rounded supplies, hazards and chibi character follow the supplied runner sheet. Nine useful supplies earn points; five distractors deduct 5 points without costing a life. Speed rises at every 250-meter milestone, and bumps reset it to starting speed. A full-width hanging cable requires a duck. Version 0.6.2 removes the street checklist and item collection popups; scores, lives, distance, speed, controls and obstacle warnings remain visible.
+Opong rides his white shield along a fictional coastal road toward an evacuation center in Lapu-Lapu City, Cebu. Version 0.6 adds a stormy 3D-style illustration, rain, wind-bent palms, a choppy sea behind the seawall and a warmly lit shelter ahead. The rounded supplies, hazards and chibi character follow the supplied runner sheet. Nine useful supplies earn points; five distractors deduct 5 points without costing a life. Speed rises at every 250-meter milestone, and bumps reset it to starting speed. A full-width hanging cable requires a duck. Version 0.6.3 adds floating supplies above jumpable obstacles and 10-second magnet, 2×, 4× and 8× bonuses after 500 meters. The street checklist and item collection popups remain removed; scores, lives, distance, speed, controls and obstacle warnings remain visible. See `Docs/Gameplay-v0.6.3.md` for the bonus rules and editing locations.
 
 Developed by: **UP Cebu Center for Environmental Informatics**, in partnership with the **City of Lapu-Lapu Disaster Risk Reduction and Management Department**.
 
@@ -30,6 +30,8 @@ To change item or obstacle artwork, edit **Assets/AndamRunner/Scripts/RunnerRefe
 ## What is playable
 
 - Endless forward motion with three lanes, jumps, timed ducks and 250-meter speed steps.
+- Three floating supplies reward jumps over each regular ground obstacle; long floods and hanging cables keep their lane-change and duck actions.
+- Power-ups unlock after 500 meters: 2× is common, 4× less common, magnets rare and 8× very rare. Each lasts 10 seconds; the highest active multiplier applies to useful-supply points. Magnet attracts nearby useful supplies.
 - Nine recognizable supplies and points; distinct supply types are tracked for results and leaderboard ranking.
 - Gym equipment, a bulky toy, beer, makeup and a game console as orange-marked distractors. Each deducts up to 5 points, with no life loss or speed reset.
 - Three lives; every accepted hazard collision deducts a life and up to 10 points. Score never goes below zero.
@@ -119,10 +121,11 @@ Automated desktop checks cannot confirm real-device touch behavior or Android pe
 | GameManager.cs | Builds the world, changes game state, applies points/lives, runs the simulation |
 | RunSession.cs | Small plain C# score, lives, and supply-checklist model |
 | RunPace.cs | Distance, 250-meter speed milestones, speed cap and collision reset |
+| RunPowerUps.cs | 500-meter bonus unlock, 10-second timers, multiplier precedence and rarity weights |
 | PlayerRunner.cs | Lanes, jump arc, timed duck, shield tilt, damage blink |
 | SwipeInput.cs | Keyboard input and one action per touch swipe |
-| TrackEntity.cs | Supply/distractor/hazard type and swept collision checks |
-| SpawnManager.cs | Reuses items and generates rows with a safe lane |
+| TrackEntity.cs | Supply/distractor/hazard/power-up type, raised rewards and swept collision checks |
+| SpawnManager.cs | Reuses items, generates safe rows and jump trails, spawns bonuses and attracts magnet supplies |
 | RepeatingRoad.cs | Recycles the three moving lanes over the illustration |
 | CoastalIllustrationBackground.cs | Fits the painted coastal backdrop to the gameplay camera |
 | CameraFollow.cs | Gentle camera follow |
@@ -136,7 +139,7 @@ Automated desktop checks cannot confirm real-device touch behavior or Android pe
 | OpongExpressions.cs | Seven facial moods and blinking through face joints |
 | PreparednessContent.cs | All item values, learning messages, and home actions |
 | PrimitiveArt.cs | Basic mesh/material helpers, scenery, shield and item creation entry points |
-| RunnerReferenceArt.cs | Sprite-sheet-guided 3D supplies, distractors and hazards, with no floating labels |
+| RunnerReferenceArt.cs | Sprite-sheet-guided 3D supplies, distractors, hazards and power-up tokens, with no floating labels |
 | OpongModel.cs | Chibi mascot geometry, costume, face and animation joints |
 | StorybookArt.cs | Smooth mesh sculpting helpers and geometry grouping |
 | StorybookPortrait.cs | Menu-only transparent camera view of the playable character |

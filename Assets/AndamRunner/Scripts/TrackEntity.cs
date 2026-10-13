@@ -8,7 +8,11 @@ namespace AndamRunner
     {
         public bool IsSupply { get; private set; }
         public bool IsDistractor { get; private set; }
-        public bool IsPickup => IsSupply || IsDistractor;
+        public bool IsPowerUp { get; private set; }
+        public bool IsPickup => IsSupply || IsDistractor || IsPowerUp;
+        public PowerUpKind PowerUp { get; private set; }
+        public float PickupHeight { get; private set; }
+        public bool IsJumpReward => IsSupply && PickupHeight>1.5f;
         public SupplyKind Supply { get; private set; }
         public DistractorKind Distractor { get; private set; }
         public HazardKind Hazard { get; private set; }
@@ -27,24 +31,30 @@ namespace AndamRunner
 
         public void ConfigureSupply(SupplyKind kind, int lane, Transform visual)
         {
-            IsSupply = true; IsDistractor=false; Supply = kind; Lane = lane; art = visual; phase = lane * 1.8f;
+            IsSupply = true; IsDistractor=false; IsPowerUp=false; Supply = kind; Lane = lane; art = visual; phase = lane * 1.8f;
             gameObject.SetActive(false);
         }
         public void ConfigureHazard(HazardKind kind, int lane, Transform visual)
         {
-            IsSupply = false; IsDistractor=false; Hazard = kind; Lane = lane; art = visual;
+            IsSupply = false; IsDistractor=false; IsPowerUp=false; Hazard = kind; Lane = lane; art = visual;
             gameObject.SetActive(false);
         }
         public void ConfigureDistractor(DistractorKind kind,int lane,Transform visual)
         {
-            IsSupply=false; IsDistractor=true; Distractor=kind; Lane=lane; art=visual; phase=lane*1.8f;
+            IsSupply=false; IsDistractor=true; IsPowerUp=false; Distractor=kind; Lane=lane; art=visual; phase=lane*1.8f;
             gameObject.SetActive(false);
         }
-        public void Spawn(float z)
+        public void ConfigurePowerUp(PowerUpKind kind,int lane,Transform visual)
+        {
+            IsSupply=false; IsDistractor=false; IsPowerUp=true; PowerUp=kind; Lane=lane; art=visual; phase=lane*1.8f;
+            gameObject.SetActive(false);
+        }
+        public void Spawn(float z,float height=0)
         {
             Consumed = false; Warned = false;
-            transform.position = new Vector3((Lane - 1) * PlayerRunner.LaneWidth, 0f, z);
-            if (art != null) art.localPosition = Vector3.zero;
+            PickupHeight=height;
+            transform.position = new Vector3((Lane - 1) * PlayerRunner.LaneWidth, height, z);
+            if (art != null) { art.localPosition = Vector3.zero; art.localRotation=Quaternion.identity; }
             gameObject.SetActive(true);
         }
         public void Consume() { Consumed = true; gameObject.SetActive(false); }
@@ -82,7 +92,7 @@ namespace AndamRunner
                 return !ducking;
             }
             if (Mathf.Abs(atCrossing.x - transform.position.x) > (IsPickup ? 0.95f : 1.15f)) return false;
-            if (IsPickup) return atCrossing.y < 1.5f;
+            if (IsPickup) return Mathf.Abs(atCrossing.y-transform.position.y) < (IsJumpReward ? .65f : 1.5f);
             return false;
         }
 

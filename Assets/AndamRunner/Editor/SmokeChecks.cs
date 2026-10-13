@@ -68,6 +68,7 @@ namespace AndamRunnerEditor
             CheckDuck(game);
             JumpChecks.Run(game);
             CheckNewItems(game);
+            PowerUpChecks.Run(game);
             game.StartRun(); game.Spawner.SpawnSupply(SupplyKind.GoBag,1,.1f); game.Simulate(.1f);
             Check(game.Session.Score==20 && game.Session.Collected==1,"real supply pickup");
             game.Simulate(.1f); Check(game.Session.Score==20,"pickup only scored once");
@@ -85,7 +86,7 @@ namespace AndamRunnerEditor
             Click(game,"MAIN MENU"); Check(game.State==RunState.Ready && game.UI.CurrentPage==MenuPage.Home,"results to menu");
             game.StartRun();
             Check(game.Speed==RunPace.BaseSpeed && game.Pace.NextMilestone==250,"restart resets speed and milestones");
-            Check(game.Session.Score==0 && game.Session.Lives==3 && game.Distance==0 && game.Player.Lane==1 && game.Player.Height==0 && game.Spawner.ActiveCount==7,"restart fully resets run");
+            Check(game.Session.Score==0 && game.Session.Lives==3 && game.Distance==0 && game.Player.Lane==1 && game.Player.Height==0 && game.Spawner.ActiveCount==16,"restart resets run and three tutorial jump trails");
             game.TogglePause(); game.Simulate(5f); Check(game.Distance==0 && game.State==RunState.Paused,"pause freezes movement");
             game.TogglePause(); Check(game.State==RunState.Playing,"resume");
             for(int i=0;i<150;i++) game.Simulate(1f/30f); float distance30=game.Distance;
@@ -101,11 +102,11 @@ namespace AndamRunnerEditor
             {
                 ChooseSafeLane(game);
                 game.Simulate(1f/60f);
-                Check(game.Spawner.ActiveCount<=30,"bounded active pool during endless spawning");
+                Check(game.Spawner.ActiveCount<=SpawnManager.MaximumActiveEntities,"bounded active pool during endless spawning");
                 if(game.State==RunState.Results) game.StartRun();
             }
             Check(game.Spawner.ActiveCount>0,"objects keep spawning");
-            game.StartRun(); Check(game.Spawner.ActiveCount==7 && game.Session.Lives==3,"restart after extended run");
+            game.StartRun(); Check(game.Spawner.ActiveCount==16 && game.Session.Lives==3,"restart after extended run");
             Debug.Log("ANDAM: "+assertions+" smoke assertions passed.");
         }
 

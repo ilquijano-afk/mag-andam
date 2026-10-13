@@ -5,6 +5,7 @@ namespace AndamRunner
     public enum SupplyKind { GoBag, Water, FirstAid, Flashlight, Whistle, Radio, ContactCard, Cash, Food }
     public enum DistractorKind { GymEquipment, Toys, Beer, Makeup, GameConsole }
     public enum HazardKind { Floodwater, PowerLine, Debris, RoadBlock, HangingCable, FloodStreak }
+    public enum PowerUpKind { Magnet, DoubleScore, QuadrupleScore, OctupleScore }
     public enum RunState { Splash, Ready, Playing, Paused, Results }
     public enum MenuPage { Splash, Home, Instructions, About, Credits, Leaderboard, Game, Pause, Results }
 
@@ -15,6 +16,7 @@ namespace AndamRunner
         public const int DistractorCount = 5;
         public const int DistractorPenalty = 5;
         public const int HazardCount = 6;
+        public const int PowerUpCount = 4;
         public const float FloodStreakLength = 32f;
         public static readonly string[] SupplyNames =
         {

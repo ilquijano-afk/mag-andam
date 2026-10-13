@@ -164,6 +164,15 @@ namespace AndamRunnerEditor
             for(int i=0;i<names.Length;i++) game.Leaderboard.Record("menu-preview"+i,names[i],300-i*15,PreparednessContent.SupplyCount-i%4,500-i*17);
             game.UI.ShowLeaderboard(); CapturePhoneSizes(game,"11-Leaderboard-SampleRuns");
             CheckTrackArtwork(game); CaptureTrackArtwork(game);
+            game.StartRun(); game.Spawner.ClearForChecks();
+            game.Spawner.SpawnHazard(HazardKind.RoadBlock,1,14);
+            game.Spawner.SpawnHazard(HazardKind.Debris,0,24);
+            CapturePhoneSizes(game,"26-Gameplay-JumpRewards");
+            game.StartRun(); game.Spawner.ClearForChecks(); game.Pace.Advance(500);
+            game.UI.RefreshDistance();
+            for(int i=0;i<4;i++) game.Spawner.SpawnPowerUp((PowerUpKind)i,i%3,10+i*8);
+            game.CollectPowerUp(PowerUpKind.QuadrupleScore); game.CollectPowerUp(PowerUpKind.Magnet);
+            CapturePhoneSizes(game,"27-Gameplay-PowerUps");
             game.StartRun(); game.Simulate(2); CapturePhoneSizes(game,"09-Gameplay");
             game.StartRun(); game.Spawner.SpawnHazard(HazardKind.FloodStreak,0,26);
             game.Feedback("LONG FLOOD AHEAD\nChange lanes! Too long to jump.",false);
@@ -189,14 +198,14 @@ namespace AndamRunnerEditor
                 "All seven page PNGs, empty leaderboard and ten sample leaderboard rows rendered at 720x1280, 720x1080 and 720x1600. Live results scores and menu/leaderboard navigation checked.\n"+
                 "Painted-button tap areas checked with the Unity GraphicRaycaster at their centers and near all four edges. Transparent graphics remain tappable and their duplicate text is disabled.\n"+
                 "Artwork preserves its original aspect ratio, all edges, and button alignment in one fitted safe-area frame.\n"+
-                "Starting speed is 18 m/s; milestone boosts reach 19.5 at 250 m and 21 at 500 m, capped at 26. Collision resets retain distance and return to 18. Pause, restart, frame-rate consistency and duck contact checks passed.\n"+
+                "Starting speed is "+RunPace.BaseSpeed+" m/s; speed adds "+RunPace.SpeedStep+" m/s every "+RunPace.Milestone+" m, with a configured ceiling of "+RunPace.MaximumSpeed+" m/s and the existing six-boost limit. Collision resets retain distance and restore starting speed. Pause, restart, frame-rate consistency and duck contact checks passed.\n"+
                 "Gameplay and ducking rendered at three phone sizes with the doubled starting speed; milestone and collision-reset HUD previews also rendered.\n"+
                 "Nine useful supplies include cash (+10) and non-perishable food (+15). Five distractors subtract five points, never reduce lives, reset speed, fill checklist types or make scores negative. Actual pickups, pause/restart, natural spawning and score persistence checked.\n"+
-                "All fourteen pickups and six hazards rendered individually and checked for finite geometry, triangle budgets and absence of floating text. New 32-meter floods and vivid collectible colors rendered in gameplay.\n"+
+                "All fourteen regular pickups, four power-ups and six hazards rendered individually and checked for finite geometry, triangle budgets and absence of floating text. Jump reward trails and active bonus indicators rendered at three phone sizes.\n"+
                 "Sample scores use isolated in-memory storage; no real player scores were modified. Original PNG pixels were not edited.\n"+
                 "Android touch and physical-device testing has not been performed.\n";
             File.WriteAllText("Docs/Menu-PNG-Validation.txt",report);
-            Debug.Log("ANDAM_MENU_PNG_PASS: seven page PNGs, nine supplies, five distractors and 18 m/s gameplay rendered; transparent-button raycasts passed at three phone sizes.");
+            Debug.Log("ANDAM_MENU_PNG_PASS: seven page PNGs, nine supplies, five distractors, four power-ups and "+RunPace.BaseSpeed+" m/s gameplay rendered; transparent-button raycasts passed at three phone sizes.");
         }
 
         private static void CapturePhoneSizes(GameManager game,string name)
@@ -280,7 +289,7 @@ namespace AndamRunnerEditor
 
         private static void CheckTrackArtwork(GameManager game)
         {
-            var supplies=new HashSet<SupplyKind>(); var hazards=new HashSet<HazardKind>(); var distractors=new HashSet<DistractorKind>();
+            var supplies=new HashSet<SupplyKind>(); var hazards=new HashSet<HazardKind>(); var distractors=new HashSet<DistractorKind>(); var powers=new HashSet<PowerUpKind>();
             int maxSupply=0,maxHazard=0,maxDistractor=0;
             foreach(TrackEntity entity in game.Spawner.GetComponentsInChildren<TrackEntity>(true))
             {
@@ -297,13 +306,14 @@ namespace AndamRunnerEditor
                     foreach(Vector3 v in mesh.vertices) if(!Finite(v)) throw new Exception("Invalid object vertex: "+entity.name);
                     foreach(Vector3 n in mesh.normals) if(!Finite(n) || n.sqrMagnitude<.1f) throw new Exception("Invalid object normal: "+entity.name);
                 }
-                int limit=entity.IsPickup?800:entity.Hazard==HazardKind.FloodStreak?5000:1500;
+                int limit=entity.IsPowerUp?1200:entity.IsPickup?800:entity.Hazard==HazardKind.FloodStreak?5000:1500;
                 if(triangles<100 || triangles>limit) throw new Exception("Track artwork triangle budget: "+entity.name+" / "+triangles);
                 if(entity.IsSupply) { supplies.Add(entity.Supply); maxSupply=Mathf.Max(maxSupply,triangles); }
                 else if(entity.IsDistractor) { distractors.Add(entity.Distractor); maxDistractor=Mathf.Max(maxDistractor,triangles); }
+                else if(entity.IsPowerUp) powers.Add(entity.PowerUp);
                 else { hazards.Add(entity.Hazard); maxHazard=Mathf.Max(maxHazard,triangles); }
             }
-            if(supplies.Count!=PreparednessContent.SupplyCount || distractors.Count!=PreparednessContent.DistractorCount || hazards.Count!=PreparednessContent.HazardCount) throw new Exception("Every supply, distractor and hazard needs checked artwork.");
+            if(supplies.Count!=PreparednessContent.SupplyCount || distractors.Count!=PreparednessContent.DistractorCount || hazards.Count!=PreparednessContent.HazardCount || powers.Count!=PreparednessContent.PowerUpCount) throw new Exception("Every supply, distractor, power-up and hazard needs checked artwork.");
             Debug.Log("ANDAM_TRACK_ART_PASS: nine supplies, five distractors and "+PreparednessContent.HazardCount+" hazards have no floating text, valid meshes, max supply "+maxSupply+" / distractor "+maxDistractor+" / hazard "+maxHazard+" triangles.");
         }
         private static bool Finite(Vector3 v)
@@ -315,20 +325,22 @@ namespace AndamRunnerEditor
             foreach(SupplyKind kind in Enum.GetValues(typeof(SupplyKind))) CaptureObject("Item-"+kind,kind,null);
             foreach(DistractorKind kind in Enum.GetValues(typeof(DistractorKind))) CaptureObject("Distractor-"+kind,null,null,kind);
             foreach(HazardKind kind in Enum.GetValues(typeof(HazardKind))) CaptureObject("Hazard-"+kind,null,kind);
+            foreach(PowerUpKind kind in Enum.GetValues(typeof(PowerUpKind))) CaptureObject("PowerUp-"+kind,null,null,null,kind);
             canvas.enabled=true;
         }
-        private static void CaptureObject(string name,SupplyKind? supply,HazardKind? hazard,DistractorKind? distractor=null)
+        private static void CaptureObject(string name,SupplyKind? supply,HazardKind? hazard,DistractorKind? distractor=null,PowerUpKind? powerUp=null)
         {
             Transform review=PrimitiveArt.Root("Object review",null,new Vector3(30,0,0));
             if(supply.HasValue) RunnerReferenceArt.Supply(review,supply.Value);
             else if(distractor.HasValue) RunnerReferenceArt.Distractor(review,distractor.Value);
+            else if(powerUp.HasValue) RunnerReferenceArt.PowerUp(review,powerUp.Value);
             else RunnerReferenceArt.Hazard(review,hazard.Value);
             PrimitiveArt.Box(review,"Review ground",new Vector3(0,-.025f,0),new Vector3(12,.04f,12),new Color32(249,237,213,255));
             foreach(Transform part in review.GetComponentsInChildren<Transform>(true)) part.gameObject.layer=9;
             var obj=new GameObject("Object review camera"); Camera camera=obj.AddComponent<Camera>();
             camera.clearFlags=CameraClearFlags.SolidColor; camera.backgroundColor=new Color32(249,237,213,255); camera.cullingMask=1<<9;
             bool fullWidth=hazard==HazardKind.HangingCable;
-            bool pickup=supply.HasValue || distractor.HasValue;
+            bool pickup=supply.HasValue || distractor.HasValue || powerUp.HasValue;
             bool longFlood=hazard==HazardKind.FloodStreak;
             camera.orthographic=true; camera.orthographicSize=pickup?.90f:longFlood?17f:fullWidth?4.70f:hazard==HazardKind.Floodwater?2.30f:1.50f;
             camera.transform.position=review.position+(pickup?new Vector3(.65f,1.55f,-3.4f):longFlood?new Vector3(4,18,-20):fullWidth?new Vector3(2.4f,3.5f,-6.4f):new Vector3(2.4f,2.3f,-4.4f));

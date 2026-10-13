@@ -56,7 +56,7 @@ namespace AndamRunnerEditor
             PlayerSettings.iOS.sdkVersion=iOSSdkVersion.DeviceSDK;
             PlayerSettings.iOS.targetOSVersionString="15.0";
             PlayerSettings.iOS.targetDevice=iOSTargetDevice.iPhoneAndiPad;
-            PlayerSettings.iOS.buildNumber="3";
+            PlayerSettings.iOS.buildNumber="4";
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft=false;
             PlayerSettings.allowedAutorotateToLandscapeRight=false;

@@ -18,6 +18,40 @@ namespace AndamRunner
         private static readonly Color Wood=new Color32(137,92,53,255);
         private static Mesh rock;
 
+        public static Transform PowerUp(Transform parent,PowerUpKind kind)
+        {
+            Surfaces();
+            Transform art=PrimitiveArt.Root(kind+" / power-up icon",parent,Vector3.zero);
+            Color color=kind==PowerUpKind.DoubleScore ? new Color32(27,210,126,255) : kind==PowerUpKind.QuadrupleScore ? Violet : Gold;
+            Disk(art,"Bonus contrast rim",new Vector3(0,.041f,0),new Vector3(.54f,.02f,.54f),Dark);
+            Disk(art,"Blue bonus marker",new Vector3(0,.045f,0),new Vector3(.47f,.02f,.47f),new Color32(48,216,255,255));
+            if(kind==PowerUpKind.Magnet)
+            {
+                StorybookArt.Stroke(art,"Red horseshoe curve",new Vector3(-.28f,.72f,0),new Vector3(0,.21f,0),new Vector3(.28f,.72f,0),.11f,Red);
+                for(int side=-1;side<=1;side+=2)
+                {
+                    Round(art,"Magnet upright",new Vector3(side*.28f,.83f,0),new Vector3(.20f,.35f,.22f),Red);
+                    Round(art,"White magnet pole",new Vector3(side*.28f,1.02f,0),new Vector3(.20f,.13f,.22f),Ivory);
+                    Round(art,"Blue pole cap",new Vector3(side*.28f,1.10f,0),new Vector3(.20f,.06f,.22f),Blue);
+                }
+            }
+            else
+            {
+                Round(art,"Colorful multiplier badge",new Vector3(0,.72f,0),new Vector3(.85f,.88f,.24f),color);
+                Round(art,"Cream number face",new Vector3(0,.72f,-.137f),new Vector3(.73f,.75f,.025f),Ivory);
+                int number=kind==PowerUpKind.DoubleScore?2:kind==PowerUpKind.QuadrupleScore?4:8;
+                int mask=number==2?91:number==4?102:127;
+                Vector3[] positions={new Vector3(-.14f,.93f,-.165f),new Vector3(-.035f,.825f,-.165f),new Vector3(-.035f,.615f,-.165f),new Vector3(-.14f,.51f,-.165f),new Vector3(-.245f,.615f,-.165f),new Vector3(-.245f,.825f,-.165f),new Vector3(-.14f,.72f,-.165f)};
+                for(int i=0;i<7;i++) if((mask & (1<<i))!=0)
+                    PrimitiveArt.MeshPart(art,"Number segment",StorybookArt.RoundedBox(2),positions[i],i==0||i==3||i==6?new Vector3(.235f,.055f,.036f):new Vector3(.055f,.205f,.036f),color);
+                for(int side=-1;side<=1;side+=2)
+                    PrimitiveArt.MeshPart(art,"Multiply symbol",StorybookArt.RoundedBox(2),new Vector3(.20f,.72f,-.165f),new Vector3(.060f,.29f,.036f),color,new Vector3(0,0,side*45));
+            }
+            Star(art,new Vector3(.42f,1.13f,0),.10f,Gold);
+            StorybookArt.CombineBone(art,true);
+            return art;
+        }
+
         public static Transform Supply(Transform parent,SupplyKind kind)
         {
             Surfaces();

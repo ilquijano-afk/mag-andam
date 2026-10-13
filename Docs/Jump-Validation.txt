@@ -1,5 +1,5 @@
-Unity 6000.6.5f1 checks passed on 2026-10-12 07:08:26Z
-9772 assertions; isolated scores, no real leaderboard changes.
+Unity 6000.6.5f1 checks passed on 2026-10-13 00:47:42Z
+10661 assertions; isolated scores, no real leaderboard changes.
 336 timed ground-obstacle jumps: four regular hazards, all lanes, all seven speeds, 15/30/60/120 fps.
 Early/late jumps, landing, swept lane crossings, single penalties and speed resets checked.
 Full-width hanging cables require ducking in every lane at base and maximum speed.

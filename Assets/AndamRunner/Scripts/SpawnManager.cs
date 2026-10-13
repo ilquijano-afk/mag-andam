@@ -5,28 +5,41 @@ namespace AndamRunner
 {
     public sealed class SpawnManager : MonoBehaviour
     {
-        private readonly List<TrackEntity> pool = new List<TrackEntity>(110);
-        private readonly List<TrackEntity> active = new List<TrackEntity>(32);
+        public const int MaximumActiveEntities=80;
+        private readonly List<TrackEntity> pool = new List<TrackEntity>(192);
+        private readonly List<TrackEntity> active = new List<TrackEntity>(MaximumActiveEntities);
         private System.Random random;
+        private System.Random powerRandom;
+        private GameManager manager;
         private float untilNextRow;
         private int previousSafeLane = 1;
         private int rows;
         private int distractorRows;
+        private bool firstPowerUp;
         private readonly int[] safeChoices=new int[3];
         public int ActiveCount => active.Count;
         public IReadOnlyList<TrackEntity> Active => active;
 
-        public void Initialize()
+        public void Initialize(GameManager game)
         {
-            // Two copies per kind/lane cover the visible distance without runtime Instantiate/Destroy.
+            manager=game;
+            // Prewarm pickups for dry routes and three-item jump trails; no phone-time allocation.
             for (int lane = 0; lane < 3; lane++)
             {
                 for (int kind = 0; kind < PreparednessContent.SupplyCount; kind++)
-                    for (int copy = 0; copy < 2; copy++)
+                    for (int copy = 0; copy < 3; copy++)
                     {
                         Transform root = PrimitiveArt.Root("Pooled supply",transform,Vector3.zero);
                         TrackEntity entity = root.gameObject.AddComponent<TrackEntity>();
                         entity.ConfigureSupply((SupplyKind)kind,lane,PrimitiveArt.SupplyArt(root,(SupplyKind)kind));
+                        pool.Add(entity);
+                    }
+                for(int kind=0;kind<PreparednessContent.PowerUpCount;kind++)
+                    for(int copy=0;copy<3;copy++)
+                    {
+                        Transform root=PrimitiveArt.Root("Pooled power-up",transform,Vector3.zero);
+                        TrackEntity entity=root.gameObject.AddComponent<TrackEntity>();
+                        entity.ConfigurePowerUp((PowerUpKind)kind,lane,RunnerReferenceArt.PowerUp(root,(PowerUpKind)kind));
                         pool.Add(entity);
                     }
                 for(int kind=0;kind<PreparednessContent.DistractorCount;kind++)
@@ -63,7 +76,7 @@ namespace AndamRunner
         public void ResetTrack()
         {
             foreach (TrackEntity entity in pool) entity.gameObject.SetActive(false);
-            active.Clear(); random = new System.Random(7351); untilNextRow = 8f;
+            active.Clear(); random = new System.Random(7351); powerRandom=new System.Random(9241); firstPowerUp=true; untilNextRow = 8f;
             previousSafeLane = 1; rows = 0; distractorRows=0;
             SpawnSupply(SupplyKind.GoBag,1,18f);
             SpawnSupply(SupplyKind.Water,0,30f);
@@ -92,6 +105,10 @@ namespace AndamRunner
                 float fromZ = entity.transform.position.z;
                 float toZ = fromZ - step;
                 entity.transform.position += Vector3.back * step;
+                if(entity.IsSupply && game.PowerUps.MagnetActive &&
+                    entity.transform.position.z>=-1 && (entity.transform.position-player.transform.position).sqrMagnitude<=RunPowerUps.MagnetRadius*RunPowerUps.MagnetRadius)
+                    entity.transform.position=Vector3.MoveTowards(entity.transform.position,player.transform.position,32f*delta);
+                toZ=entity.transform.position.z;
                 entity.Animate(Time.time);
                 if(entity.SpansAllLanes && !entity.Warned && toZ<speed*.65f+.9f && toZ>0)
                 {
@@ -115,6 +132,7 @@ namespace AndamRunner
                     entity.Consume();
                     if(entity.IsSupply) game.Collect(entity.Supply);
                     else if(entity.IsDistractor) game.CollectDistractor(entity.Distractor);
+                    else if(entity.IsPowerUp) game.CollectPowerUp(entity.PowerUp);
                     else game.Hit(entity.Hazard);
                     active.RemoveAt(i);
                     if (game.State != RunState.Playing) return;
@@ -160,6 +178,11 @@ namespace AndamRunner
             // Cycle every useful kind, including cash and food, before randomizing.
             SupplyKind supply = rows <= PreparednessContent.SupplyCount ? (SupplyKind)((rows+2)%PreparednessContent.SupplyCount) : (SupplyKind)random.Next(PreparednessContent.SupplyCount);
             SpawnSupply(supply,safe,z);
+            if(manager.Distance>=RunPowerUps.UnlockDistance && (firstPowerUp || powerRandom.NextDouble()<.20))
+            {
+                PowerUpKind kind=firstPowerUp ? PowerUpKind.DoubleScore : RunPowerUps.Choose(powerRandom);
+                if(!FloodedAt(safe,z+4f) && SpawnPowerUp(kind,safe,z+4f)!=null) firstPowerUp=false;
+            }
             if(newFlood) return;
             // Cable rows require a duck rather than a lane choice. Neighboring rows are clear
             // of ground hazards so the player has time to finish ducking before the next jump.
@@ -198,17 +221,34 @@ namespace AndamRunner
             return true;
         }
 
-        public TrackEntity SpawnSupply(SupplyKind kind, int lane, float z) { return Spawn(true,(int)kind,lane,z); }
+        public TrackEntity SpawnSupply(SupplyKind kind, int lane, float z,float height=0) { return Spawn(true,(int)kind,lane,z,false,height); }
         public TrackEntity SpawnDistractor(DistractorKind kind,int lane,float z) { return Spawn(false,(int)kind,lane,z,true); }
         public TrackEntity SpawnHazard(HazardKind kind, int lane, float z)
-        { return Spawn(false,(int)kind,kind==HazardKind.HangingCable?1:lane,z); }
-        private TrackEntity Spawn(bool supply, int kind, int lane, float z,bool distractor=false)
+        {
+            TrackEntity hazard=Spawn(false,(int)kind,kind==HazardKind.HangingCable?1:lane,z);
+            if(hazard!=null && kind!=HazardKind.HangingCable && kind!=HazardKind.FloodStreak)
+            {
+                int first=random.Next(PreparednessContent.SupplyCount);
+                for(int i=0;i<3;i++)
+                    SpawnSupply((SupplyKind)((first+i)%PreparednessContent.SupplyCount),lane,z+(i-1)*3f,i==1?2.2f:1.85f);
+            }
+            return hazard;
+        }
+        public TrackEntity SpawnPowerUp(PowerUpKind kind,int lane,float z)
+        {
+            if(manager.Distance<RunPowerUps.UnlockDistance) return null;
+            foreach(TrackEntity entity in pool)
+                if(!entity.gameObject.activeSelf && entity.IsPowerUp && entity.PowerUp==kind && entity.Lane==lane)
+                { entity.Spawn(z); active.Add(entity); return entity; }
+            return null;
+        }
+        private TrackEntity Spawn(bool supply, int kind, int lane, float z,bool distractor=false,float height=0)
         {
             foreach (TrackEntity entity in pool)
             {
-                if (entity.gameObject.activeSelf || entity.IsSupply != supply || entity.IsDistractor!=distractor || entity.Lane != lane) continue;
+                if (entity.gameObject.activeSelf || entity.IsPowerUp || entity.IsSupply != supply || entity.IsDistractor!=distractor || entity.Lane != lane) continue;
                 if ((supply ? (int)entity.Supply : distractor ? (int)entity.Distractor : (int)entity.Hazard) != kind) continue;
-                entity.Spawn(z); active.Add(entity); return entity;
+                entity.Spawn(z,height); active.Add(entity); return entity;
             }
             // A busy pool skips the object rather than allocating on a phone.
             return null;

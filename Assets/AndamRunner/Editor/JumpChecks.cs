@@ -176,7 +176,7 @@ namespace AndamRunnerEditor
             for(int step=0;step<1200;step++)
             {
                 game.Spawner.Tick(.1f,26,game.Player,game,game.Player.transform.position);
-                Check(game.Spawner.ActiveCount<=30,"long-flood spawning remains bounded");
+                Check(game.Spawner.ActiveCount<=SpawnManager.MaximumActiveEntities,"long-flood spawning remains bounded");
                 foreach(TrackEntity flood in game.Spawner.Active)
                 {
                     if(flood.IsPickup || flood.Hazard!=HazardKind.FloodStreak || flood.Consumed) continue;
@@ -187,7 +187,7 @@ namespace AndamRunnerEditor
                                 "flood footprint has no overlapping supplies, distractors or hazards");
                 }
                 foreach(TrackEntity supply in game.Spawner.Active)
-                    if(supply.IsSupply && !supply.Consumed)
+                    if(supply.IsSupply && !supply.IsJumpReward && !supply.Consumed)
                         foreach(TrackEntity hazard in game.Spawner.Active)
                             if(!hazard.IsPickup && !hazard.SpansAllLanes && !hazard.Consumed && hazard.Lane==supply.Lane)
                                 Check(Mathf.Abs(hazard.transform.position.z-supply.transform.position.z)>hazard.HalfDepth+supply.HalfDepth,
