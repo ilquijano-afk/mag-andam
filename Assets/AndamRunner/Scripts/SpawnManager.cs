@@ -6,6 +6,9 @@ namespace AndamRunner
     public sealed class SpawnManager : MonoBehaviour
     {
         public const int MaximumActiveEntities=80;
+        public const float ReactionTime=.75f, MinimumPowerUpGap=400f, MaximumPowerUpGap=550f;
+        // Reserve the longest action, preparation for the next jump and time to react.
+        public static float ObstacleRecoveryTime => Mathf.Max(PlayerRunner.JumpDuration,PlayerRunner.DuckDuration)+PlayerRunner.JumpDuration*.5f+ReactionTime;
         private readonly List<TrackEntity> pool = new List<TrackEntity>(192);
         private readonly List<TrackEntity> active = new List<TrackEntity>(MaximumActiveEntities);
         private System.Random random;
@@ -15,6 +18,9 @@ namespace AndamRunner
         private int previousSafeLane = 1;
         private int rows;
         private int distractorRows;
+        private int obstacleGroups;
+        private float lastObstacleEndDistance;
+        private float nextPowerUpDistance;
         private bool firstPowerUp;
         private readonly int[] safeChoices=new int[3];
         public int ActiveCount => active.Count;
@@ -23,7 +29,7 @@ namespace AndamRunner
         public void Initialize(GameManager game)
         {
             manager=game;
-            // Prewarm pickups for dry routes and three-item jump trails; no phone-time allocation.
+            // Prewarm pickups for dry routes and one raised jump reward; no phone-time allocation.
             for (int lane = 0; lane < 3; lane++)
             {
                 for (int kind = 0; kind < PreparednessContent.SupplyCount; kind++)
@@ -77,14 +83,13 @@ namespace AndamRunner
         {
             foreach (TrackEntity entity in pool) entity.gameObject.SetActive(false);
             active.Clear(); random = new System.Random(7351); powerRandom=new System.Random(9241); firstPowerUp=true; untilNextRow = 8f;
-            previousSafeLane = 1; rows = 0; distractorRows=0;
+            previousSafeLane = 1; rows = 0; distractorRows=0; obstacleGroups=1;
+            lastObstacleEndDistance=float.NegativeInfinity; nextPowerUpDistance=RunPowerUps.UnlockDistance;
             SpawnSupply(SupplyKind.GoBag,1,18f);
             SpawnSupply(SupplyKind.Water,0,30f);
             SpawnHazard(HazardKind.Floodwater,2,36f);
             SpawnSupply(SupplyKind.FirstAid,1,44f);
-            SpawnHazard(HazardKind.Debris,0,47f);
             SpawnSupply(SupplyKind.ContactCard,2,58f);
-            SpawnHazard(HazardKind.PowerLine,1,62f);
         }
 
         #if UNITY_EDITOR
@@ -92,7 +97,7 @@ namespace AndamRunner
         public void ClearForChecks()
         {
             foreach(TrackEntity entity in pool) entity.gameObject.SetActive(false);
-            active.Clear(); untilNextRow=10000f;
+            active.Clear(); untilNextRow=10000f; lastObstacleEndDistance=float.NegativeInfinity;
         }
         #endif
 
@@ -154,10 +159,15 @@ namespace AndamRunner
         private void SpawnRow(float z)
         {
             rows++;
-            // Reserve the neighboring rows too: the streak must never hide a pickup or
-            // close the guaranteed dry route while it occupies one lane for 32 meters.
+            int nextGroup=obstacleGroups+1;
+            bool cableRow=nextGroup%5==0;
+            bool floodRow=!cableRow && nextGroup%7==0;
+            float halfDepth=floodRow ? PreparednessContent.FloodStreakLength*.5f : cableRow ? .9f : 2.4f;
+            bool obstacleRow=CanPlaceObstacle(z,halfDepth);
+            // Long floods reserve their whole footprint; a recovery interval separates
+            // every obstacle group, including full-width cables and the flood's tail.
             bool newFlood=false;
-            if(rows>=5 && rows%18==5)
+            if(obstacleRow && floodRow)
             {
                 int first=random.Next(3);
                 for(int i=0;i<3;i++)
@@ -178,16 +188,21 @@ namespace AndamRunner
             // Cycle every useful kind, including cash and food, before randomizing.
             SupplyKind supply = rows <= PreparednessContent.SupplyCount ? (SupplyKind)((rows+2)%PreparednessContent.SupplyCount) : (SupplyKind)random.Next(PreparednessContent.SupplyCount);
             SpawnSupply(supply,safe,z);
-            if(manager.Distance>=RunPowerUps.UnlockDistance && (firstPowerUp || powerRandom.NextDouble()<.20))
+            if(manager.Distance>=nextPowerUpDistance)
             {
                 PowerUpKind kind=firstPowerUp ? PowerUpKind.DoubleScore : RunPowerUps.Choose(powerRandom);
-                if(!FloodedAt(safe,z+4f) && SpawnPowerUp(kind,safe,z+4f)!=null) firstPowerUp=false;
+                if(!FloodedAt(safe,z+4f) && SpawnPowerUp(kind,safe,z+4f)!=null)
+                {
+                    firstPowerUp=false;
+                    nextPowerUpDistance=manager.Distance+MinimumPowerUpGap+(float)powerRandom.NextDouble()*(MaximumPowerUpGap-MinimumPowerUpGap);
+                }
             }
-            if(newFlood) return;
-            // Cable rows require a duck rather than a lane choice. Neighboring rows are clear
-            // of ground hazards so the player has time to finish ducking before the next jump.
-            if(rows>=9 && rows%9==0) { SpawnHazard(HazardKind.HangingCable,1,z); return; }
-            if(rows>=8 && (rows%9==8 || rows%9==1)) return;
+            if(newFlood) { obstacleGroups=nextGroup; return; }
+            if(obstacleRow && cableRow)
+            {
+                if(SpawnHazard(HazardKind.HangingCable,1,z)!=null) obstacleGroups=nextGroup;
+                return;
+            }
             // The correct supply keeps its clear lane; distractors occupy another lane.
             // Cycle all five so every requested object appears, without cable-row conflicts.
             if(rows%3==0)
@@ -196,13 +211,22 @@ namespace AndamRunner
                 if(FloodedAt(lane,z)) lane=(safe+2)%3;
                 SpawnDistractor((DistractorKind)(distractorRows++%PreparednessContent.DistractorCount),lane,z);
             }
-            if (rows % 3 != 0)
+            if(obstacleRow && !floodRow && rows%3!=0)
             {
                 int hazardLane = (safe + (random.Next(2)==0 ? 1 : 2)) % 3;
-                if(!FloodedAt(hazardLane,z)) SpawnHazard((HazardKind)random.Next(4),hazardLane,z);
+                bool spawned=!FloodedAt(hazardLane,z) && SpawnHazard((HazardKind)random.Next(4),hazardLane,z)!=null;
                 int otherLane=3-safe-hazardLane;
-                if (rows > 7 && rows % 4 == 0 && !FloodedAt(otherLane,z)) SpawnHazard((HazardKind)random.Next(4),otherLane,z);
+                if(rows>7 && rows%4==0 && !FloodedAt(otherLane,z))
+                    spawned=SpawnHazard((HazardKind)random.Next(4),otherLane,z)!=null || spawned;
+                if(spawned) obstacleGroups=nextGroup;
             }
+        }
+
+        private bool CanPlaceObstacle(float z,float halfDepth)
+        {
+            // Use the highest reachable speed, so a future milestone cannot shorten
+            // the reserved recovery time. Keep this reservation after a hazard is hit.
+            return manager.Distance+z-halfDepth>=lastObstacleEndDistance+RunPace.TopSpeed*ObstacleRecoveryTime;
         }
 
         private bool FloodedAt(int lane,float z)
@@ -226,11 +250,10 @@ namespace AndamRunner
         public TrackEntity SpawnHazard(HazardKind kind, int lane, float z)
         {
             TrackEntity hazard=Spawn(false,(int)kind,kind==HazardKind.HangingCable?1:lane,z);
+            if(hazard!=null) lastObstacleEndDistance=Mathf.Max(lastObstacleEndDistance,manager.Distance+z+hazard.HalfDepth);
             if(hazard!=null && kind!=HazardKind.HangingCable && kind!=HazardKind.FloodStreak)
             {
-                int first=random.Next(PreparednessContent.SupplyCount);
-                for(int i=0;i<3;i++)
-                    SpawnSupply((SupplyKind)((first+i)%PreparednessContent.SupplyCount),lane,z+(i-1)*3f,i==1?2.2f:1.85f);
+                SpawnSupply((SupplyKind)random.Next(PreparednessContent.SupplyCount),lane,z,2.2f);
             }
             return hazard;
         }

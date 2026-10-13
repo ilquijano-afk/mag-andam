@@ -22,10 +22,10 @@ namespace AndamRunnerEditor
             Directory.CreateDirectory("Docs");
             File.WriteAllText("Docs/Power-up-Validation.txt","Unity "+Application.unityVersion+" on "+DateTime.UtcNow.ToString("u")+"\n"+
                 assertions+" assertions passed with isolated leaderboard storage.\n"+
-                "Three raised useful supplies per jumpable obstacle: timed jumps collect them, standing and lane dodges cannot. All lanes, base/top speed and 30/120 fps checked.\n"+
+                "One raised useful supply per jumpable obstacle: timed jumps collect it, standing and lane dodges cannot. All lanes, base/top speed and 30/120 fps checked.\n"+
                 "Bonuses unlock at exactly 500m. 10-second timers, strongest multiplier, independent weaker timers, pause, expiry, restart and actual multiplied pickups checked. Penalties remain unchanged.\n"+
                 "Magnet attracts nearby raised/adjacent supplies; distractors, obstacles, power-ups and distant supplies are excluded.\n"+
-                "Natural spawning over 30,000m has no power-ups before 500m, bounded pools and the requested rarity order. Weighted selector checked over 100,000 draws.\n");
+                "Natural spawning over 120,000m has no power-ups before 500m, at least 400m between bonuses, only one bonus on screen, bounded pools and the requested rarity order. Weighted selector checked over 100,000 draws.\n");
             Debug.Log("ANDAM_POWERUP_PASS: "+assertions+" jump reward, multiplier, magnet, unlock and rarity assertions.");
             game.StartRun();
         }
@@ -76,9 +76,9 @@ namespace AndamRunnerEditor
                                 count++; expected+=PreparednessContent.Points[(int)item.Supply];
                                 Check(!item.IsContact(Vector3.zero,Vector3.zero,3,-3),"ground cannot collect raised rewards");
                             }
-                            Check(count==3,"three air rewards over each jump obstacle");
+                            Check(count==1,"exactly one air reward over each jump obstacle");
                             game.Jump(); Frames(game,1.1f,frame);
-                            Check(game.Session.Collected==3 && game.Session.Score==expected && game.Session.Lives==3,"jump collects the complete trail without a hazard hit");
+                            Check(game.Session.Collected==1 && game.Session.Score==expected && game.Session.Lives==3,"jump collects the single reward without a hazard hit");
                         }
             for(int kind=0;kind<4;kind++)
             {
@@ -126,22 +126,34 @@ namespace AndamRunnerEditor
         {
             game.StartRun(); game.Player.transform.position=new Vector3(100,0,0);
             var lastZ=new Dictionary<TrackEntity,float>(); var counts=new int[4]; bool raised=false;
-            for(int i=0;i<10000;i++)
+            float lastPowerDistance=float.NegativeInfinity;
+            for(int i=0;i<40000;i++)
             {
                 game.Pace.Advance(3); game.Spawner.Tick(.1f,30,game.Player,game,game.Player.transform.position);
                 Check(game.Spawner.ActiveCount<=SpawnManager.MaximumActiveEntities,"bonuses and jump rewards use bounded pools");
+                int visibleBonuses=0;
                 foreach(TrackEntity item in game.Spawner.Active)
                 {
                     if(item.IsJumpReward) raised=true;
                     if(!item.IsPowerUp) continue;
+                    visibleBonuses++;
                     Check(game.Distance>=500,"no natural power-ups before the unlock distance");
                     float z=item.transform.position.z;
-                    if(!lastZ.TryGetValue(item,out float previous) || z>previous+.1f) counts[(int)item.PowerUp]++;
+                    if(!lastZ.TryGetValue(item,out float previous) || z>previous+.1f)
+                    {
+                        counts[(int)item.PowerUp]++;
+                        float worldDistance=game.Distance+z;
+                        Check(worldDistance-lastPowerDistance>=SpawnManager.MinimumPowerUpGap-.1f,"at least 400 meters between all natural bonuses");
+                        if(!float.IsNegativeInfinity(lastPowerDistance))
+                            Check(worldDistance-lastPowerDistance<=SpawnManager.MaximumPowerUpGap+14f,"bonus spacing remains within one supply row of the selected interval");
+                        lastPowerDistance=worldDistance;
+                    }
                     lastZ[item]=z;
                     foreach(TrackEntity hazard in game.Spawner.Active)
                         if(!hazard.IsPickup && !hazard.SpansAllLanes && hazard.Lane==item.Lane)
                             Check(Mathf.Abs(hazard.transform.position.z-z)>hazard.HalfDepth+item.HalfDepth,"bonus is on an open route");
                 }
+                Check(visibleBonuses<=1,"never crowd the route with several bonuses");
             }
             Check(raised,"natural obstacle rows offer raised rewards");
             Check(counts[1]>counts[2] && counts[2]>counts[0] && counts[0]>counts[3] && counts[3]>0,"natural field rarity matches the requested order and includes 8x");

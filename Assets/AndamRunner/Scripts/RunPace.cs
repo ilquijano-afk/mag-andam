@@ -6,6 +6,8 @@ namespace AndamRunner
     public sealed class RunPace
     {
         public const float BaseSpeed=24f, SpeedStep=2f, MaximumSpeed=46f, Milestone=250f;
+        public const int MaximumLevel=6;
+        public static float TopSpeed => Mathf.Min(MaximumSpeed,BaseSpeed+MaximumLevel*SpeedStep);
         public float Distance { get; private set; }
         public float NextMilestone { get; private set; }=Milestone;
         public int Level { get; private set; }
@@ -17,7 +19,7 @@ namespace AndamRunner
             if(meters<=0) return;
             Distance+=meters;
             while(Distance>=NextMilestone)
-            { Level=Mathf.Min(6,Level+1); NextMilestone+=Milestone; }
+            { Level=Mathf.Min(MaximumLevel,Level+1); NextMilestone+=Milestone; }
         }
     }
 }

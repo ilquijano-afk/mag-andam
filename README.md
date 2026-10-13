@@ -2,7 +2,7 @@
 
 **Resilience Starts at Home** · ANDAM Lapu-Lapu · IDDRR prototype
 
-Opong rides his white shield along a fictional coastal road toward an evacuation center in Lapu-Lapu City, Cebu. Version 0.6 adds a stormy 3D-style illustration, rain, wind-bent palms, a choppy sea behind the seawall and a warmly lit shelter ahead. The rounded supplies, hazards and chibi character follow the supplied runner sheet. Nine useful supplies earn points; five distractors deduct 5 points without costing a life. Speed rises at every 250-meter milestone, and bumps reset it to starting speed. A full-width hanging cable requires a duck. Version 0.6.3 adds floating supplies above jumpable obstacles and 10-second magnet, 2×, 4× and 8× bonuses after 500 meters. The street checklist and item collection popups remain removed; scores, lives, distance, speed, controls and obstacle warnings remain visible. See `Docs/Gameplay-v0.6.3.md` for the bonus rules and editing locations.
+Opong rides his white shield along a fictional coastal road toward an evacuation center in Lapu-Lapu City, Cebu. Version 0.6 adds a stormy 3D-style illustration, rain, wind-bent palms, a choppy sea behind the seawall and a warmly lit shelter ahead. The rounded supplies, hazards and chibi character follow the supplied runner sheet. Nine useful supplies earn points; five distractors deduct 5 points without costing a life. Speed rises at every 250-meter milestone, and bumps reset it to starting speed. A full-width hanging cable requires a duck. Version 0.6.4 gives each jumpable obstacle one raised supply, spaces obstacle groups for action recovery and reaction time, and separates 10-second magnet, 2×, 4× and 8× bonuses by at least 400 meters after their 500-meter unlock. The street checklist and item collection popups remain removed; scores, lives, distance, speed, controls and obstacle warnings remain visible. See `Docs/Gameplay-v0.6.4.md` for timing rules and editing locations.
 
 Developed by: **UP Cebu Center for Environmental Informatics**, in partnership with the **City of Lapu-Lapu Disaster Risk Reduction and Management Department**.
 
@@ -30,8 +30,8 @@ To change item or obstacle artwork, edit **Assets/AndamRunner/Scripts/RunnerRefe
 ## What is playable
 
 - Endless forward motion with three lanes, jumps, timed ducks and 250-meter speed steps.
-- Three floating supplies reward jumps over each regular ground obstacle; long floods and hanging cables keep their lane-change and duck actions.
-- Power-ups unlock after 500 meters: 2× is common, 4× less common, magnets rare and 8× very rare. Each lasts 10 seconds; the highest active multiplier applies to useful-supply points. Magnet attracts nearby useful supplies.
+- One floating supply rewards a well-timed jump over each regular ground obstacle; long floods and hanging cables keep their lane-change and duck actions. Separate obstacle groups leave time to finish an action and react to the next one, even at top speed.
+- Power-ups unlock after 500 meters: 2× is common, 4× less common, magnets rare and 8× very rare. Bonuses are at least 400 meters apart, with only one field token visible at a time. Each lasts 10 seconds; the highest active multiplier applies to useful-supply points. Magnet attracts nearby useful supplies.
 - Nine recognizable supplies and points; distinct supply types are tracked for results and leaderboard ranking.
 - Gym equipment, a bulky toy, beer, makeup and a game console as orange-marked distractors. Each deducts up to 5 points, with no life loss or speed reset.
 - Three lives; every accepted hazard collision deducts a life and up to 10 points. Score never goes below zero.
@@ -125,7 +125,7 @@ Automated desktop checks cannot confirm real-device touch behavior or Android pe
 | PlayerRunner.cs | Lanes, jump arc, timed duck, shield tilt, damage blink |
 | SwipeInput.cs | Keyboard input and one action per touch swipe |
 | TrackEntity.cs | Supply/distractor/hazard/power-up type, raised rewards and swept collision checks |
-| SpawnManager.cs | Reuses items, generates safe rows and jump trails, spawns bonuses and attracts magnet supplies |
+| SpawnManager.cs | Reuses items, generates safe rows and single jump rewards, reserves obstacle recovery time, spaces bonuses and attracts magnet supplies |
 | RepeatingRoad.cs | Recycles the three moving lanes over the illustration |
 | CoastalIllustrationBackground.cs | Fits the painted coastal backdrop to the gameplay camera |
 | CameraFollow.cs | Gentle camera follow |

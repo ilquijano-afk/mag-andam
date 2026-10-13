@@ -175,6 +175,7 @@ namespace AndamRunnerEditor
             bool seen=false;
             for(int step=0;step<1200;step++)
             {
+                game.Pace.Advance(2.6f);
                 game.Spawner.Tick(.1f,26,game.Player,game,game.Player.transform.position);
                 Check(game.Spawner.ActiveCount<=SpawnManager.MaximumActiveEntities,"long-flood spawning remains bounded");
                 foreach(TrackEntity flood in game.Spawner.Active)

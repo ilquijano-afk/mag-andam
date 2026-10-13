@@ -1,6 +1,6 @@
-Unity 6000.6.5f1 on 2026-10-13 00:47:42Z
-36005 assertions passed with isolated leaderboard storage.
-Three raised useful supplies per jumpable obstacle: timed jumps collect them, standing and lane dodges cannot. All lanes, base/top speed and 30/120 fps checked.
+Unity 6000.6.5f1 on 2026-10-13 01:33:45Z
+89478 assertions passed with isolated leaderboard storage.
+One raised useful supply per jumpable obstacle: timed jumps collect it, standing and lane dodges cannot. All lanes, base/top speed and 30/120 fps checked.
 Bonuses unlock at exactly 500m. 10-second timers, strongest multiplier, independent weaker timers, pause, expiry, restart and actual multiplied pickups checked. Penalties remain unchanged.
 Magnet attracts nearby raised/adjacent supplies; distractors, obstacles, power-ups and distant supplies are excluded.
-Natural spawning over 30,000m has no power-ups before 500m, bounded pools and the requested rarity order. Weighted selector checked over 100,000 draws.
+Natural spawning over 120,000m has no power-ups before 500m, at least 400m between bonuses, only one bonus on screen, bounded pools and the requested rarity order. Weighted selector checked over 100,000 draws.

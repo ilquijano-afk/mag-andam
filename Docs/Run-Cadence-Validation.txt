@@ -1,0 +1,5 @@
+Unity 6000.6.5f1 on 2026-10-13 01:33:46Z
+29222 assertions passed with isolated scores.
+Natural routes over 4,000 meters at 15/30/60/120 fps keep obstacle footprints separated by action completion, next-jump preparation and 0.75 seconds of reaction time at the highest reachable speed.
+288 duck-to-jump, jump-to-duck and jump-to-jump sequences replay the shortest naturally generated gaps across all three lanes, four ground obstacles, base/top speed and four frame rates. Late valid ducks still leave time to jump; all sequences preserve three lives and execute the second action.
+Natural rows give exactly one raised supply per regular ground hazard, none over long floods or hanging cables. Cable/flood variety, safe routes and bounded pools are retained.

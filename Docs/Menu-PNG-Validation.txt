@@ -1,11 +1,11 @@
-Unity 6000.6.5f1 supplied menu PNG validation on 2026-10-13 00:47:46Z
+Unity 6000.6.5f1 supplied menu PNG validation on 2026-10-13 01:33:50Z
 Gameplay, menu navigation and persistent leaderboard smoke checks passed.
 All seven page PNGs, empty leaderboard and ten sample leaderboard rows rendered at 720x1280, 720x1080 and 720x1600. Live results scores and menu/leaderboard navigation checked.
 Painted-button tap areas checked with the Unity GraphicRaycaster at their centers and near all four edges. Transparent graphics remain tappable and their duplicate text is disabled.
 Artwork preserves its original aspect ratio, all edges, and button alignment in one fitted safe-area frame.
-Starting speed is 24 m/s; milestones add 2 m/s per 250 m. The configured ceiling is 46 m/s; the six-boost limit reaches 36 m/s. Collision resets retain distance and restore starting speed. Pause, restart, frame-rate consistency and duck contact checks passed.
+Starting speed is 24 m/s; speed adds 2 m/s every 250 m, with a configured ceiling of 46 m/s and the existing six-boost limit. Collision resets retain distance and restore starting speed. Pause, restart, frame-rate consistency and duck contact checks passed.
 Gameplay and ducking rendered at three phone sizes with the doubled starting speed; milestone and collision-reset HUD previews also rendered.
 Nine useful supplies include cash (+10) and non-perishable food (+15). Five distractors subtract five points, never reduce lives, reset speed, fill checklist types or make scores negative. Actual pickups, pause/restart, natural spawning and score persistence checked.
-All fourteen regular pickups, four power-ups and six hazards rendered individually and checked for finite geometry, triangle budgets and absence of floating text. New 32-meter floods and vivid collectible colors rendered in gameplay.
+All fourteen regular pickups, four power-ups and six hazards rendered individually and checked for finite geometry, triangle budgets and absence of floating text. Single jump rewards and a single bonus token rendered at three phone sizes.
 Sample scores use isolated in-memory storage; no real player scores were modified. Original PNG pixels were not edited.
 Android touch and physical-device testing has not been performed.

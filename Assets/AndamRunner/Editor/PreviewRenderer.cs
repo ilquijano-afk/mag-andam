@@ -166,12 +166,10 @@ namespace AndamRunnerEditor
             CheckTrackArtwork(game); CaptureTrackArtwork(game);
             game.StartRun(); game.Spawner.ClearForChecks();
             game.Spawner.SpawnHazard(HazardKind.RoadBlock,1,14);
-            game.Spawner.SpawnHazard(HazardKind.Debris,0,24);
             CapturePhoneSizes(game,"26-Gameplay-JumpRewards");
             game.StartRun(); game.Spawner.ClearForChecks(); game.Pace.Advance(500);
             game.UI.RefreshDistance();
-            for(int i=0;i<4;i++) game.Spawner.SpawnPowerUp((PowerUpKind)i,i%3,10+i*8);
-            game.CollectPowerUp(PowerUpKind.QuadrupleScore); game.CollectPowerUp(PowerUpKind.Magnet);
+            game.Spawner.SpawnPowerUp(PowerUpKind.DoubleScore,1,24);
             CapturePhoneSizes(game,"27-Gameplay-PowerUps");
             game.StartRun(); game.Simulate(2); CapturePhoneSizes(game,"09-Gameplay");
             game.StartRun(); game.Spawner.SpawnHazard(HazardKind.FloodStreak,0,26);
@@ -201,7 +199,7 @@ namespace AndamRunnerEditor
                 "Starting speed is "+RunPace.BaseSpeed+" m/s; speed adds "+RunPace.SpeedStep+" m/s every "+RunPace.Milestone+" m, with a configured ceiling of "+RunPace.MaximumSpeed+" m/s and the existing six-boost limit. Collision resets retain distance and restore starting speed. Pause, restart, frame-rate consistency and duck contact checks passed.\n"+
                 "Gameplay and ducking rendered at three phone sizes with the doubled starting speed; milestone and collision-reset HUD previews also rendered.\n"+
                 "Nine useful supplies include cash (+10) and non-perishable food (+15). Five distractors subtract five points, never reduce lives, reset speed, fill checklist types or make scores negative. Actual pickups, pause/restart, natural spawning and score persistence checked.\n"+
-                "All fourteen regular pickups, four power-ups and six hazards rendered individually and checked for finite geometry, triangle budgets and absence of floating text. Jump reward trails and active bonus indicators rendered at three phone sizes.\n"+
+                "All fourteen regular pickups, four power-ups and six hazards rendered individually and checked for finite geometry, triangle budgets and absence of floating text. Single jump rewards and a single bonus token rendered at three phone sizes.\n"+
                 "Sample scores use isolated in-memory storage; no real player scores were modified. Original PNG pixels were not edited.\n"+
                 "Android touch and physical-device testing has not been performed.\n";
             File.WriteAllText("Docs/Menu-PNG-Validation.txt",report);
