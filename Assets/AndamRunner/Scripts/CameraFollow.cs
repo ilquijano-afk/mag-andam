@@ -9,14 +9,14 @@ namespace AndamRunner
         public void Initialize(PlayerRunner runner) { player = runner; ResetCamera(); }
         public void ResetCamera()
         {
-            transform.position = new Vector3(0,4.3f,-9f);
-            transform.rotation = Quaternion.LookRotation(new Vector3(0,-.2f,11.5f)-transform.position);
+            transform.position = new Vector3(0,5f,-13.5f);
+            transform.rotation = Quaternion.Euler(12,0,0);
+            Camera camera=GetComponent<Camera>();
+            camera.fieldOfView=2*Mathf.Atan(Mathf.Tan(28*Mathf.Deg2Rad)*Mathf.Max(1,.5625f/camera.aspect))*Mathf.Rad2Deg;
         }
         public void SetPresentation(bool value)
         {
             presentation=value;
-            CoastalIllustrationBackground background=GetComponent<CoastalIllustrationBackground>();
-            if(background!=null) background.SetStorm(!value);
             if(value)
             {
                 transform.position=new Vector3(-3.8f,3.2f,6.8f);
@@ -27,9 +27,8 @@ namespace AndamRunner
         {
             if (player == null) return;
             if (presentation) return;
-            Vector3 position = new Vector3(player.transform.position.x*.07f,4.3f,-9f);
-            transform.position = Vector3.Lerp(transform.position,position,1f-Mathf.Exp(-5f*Time.unscaledDeltaTime));
-            transform.rotation = Quaternion.LookRotation(new Vector3(player.transform.position.x*.05f,-.2f,11.5f)-transform.position);
+            // Fixed angle and horizon: lane changes and slopes never shake or zoom the camera.
+            ResetCamera();
         }
     }
 }

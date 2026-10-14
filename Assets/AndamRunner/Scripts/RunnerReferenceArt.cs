@@ -18,8 +18,16 @@ namespace AndamRunner
         private static readonly Color Wood=new Color32(137,92,53,255);
         private static Mesh rock;
 
+        private static Transform SavedPrefab(Transform parent,string id)
+        {
+            if(!Application.isPlaying) return null;
+            GameObject source=Resources.Load<GameObject>("Environment/Gameplay/"+id);
+            return source!=null ? Object.Instantiate(source,parent,false).transform : null;
+        }
+
         public static Transform PowerUp(Transform parent,PowerUpKind kind)
         {
+            Transform saved=SavedPrefab(parent,"PF_PowerUp_"+kind); if(saved!=null) return saved;
             Surfaces();
             Transform art=PrimitiveArt.Root(kind+" / power-up icon",parent,Vector3.zero);
             Color color=kind==PowerUpKind.DoubleScore ? new Color32(27,210,126,255) : kind==PowerUpKind.QuadrupleScore ? Violet : Gold;
@@ -54,6 +62,7 @@ namespace AndamRunner
 
         public static Transform Supply(Transform parent,SupplyKind kind)
         {
+            Transform saved=SavedPrefab(parent,"PF_Supply_"+kind); if(saved!=null) return saved;
             Surfaces();
             Transform art=PrimitiveArt.Root(PreparednessContent.SupplyNames[(int)kind]+" / icon only",parent,Vector3.zero);
             Disk(art,"Pickup contrast rim",new Vector3(0,.041f,0),new Vector3(.54f,.02f,.54f),Dark);
@@ -132,6 +141,7 @@ namespace AndamRunner
 
         public static Transform Distractor(Transform parent,DistractorKind kind)
         {
+            Transform saved=SavedPrefab(parent,"PF_Distractor_"+kind); if(saved!=null) return saved;
             Surfaces();
             Transform art=PrimitiveArt.Root(PreparednessContent.DistractorNames[(int)kind]+" / icon only",parent,Vector3.zero);
             Disk(art,"Distractor contrast rim",new Vector3(0,.041f,0),new Vector3(.54f,.02f,.54f),Dark);
@@ -268,6 +278,7 @@ namespace AndamRunner
 
         public static Transform Hazard(Transform parent,HazardKind kind)
         {
+            Transform saved=SavedPrefab(parent,"PF_Hazard_"+kind); if(saved!=null) return saved;
             Surfaces();
             Transform art=PrimitiveArt.Root(PreparednessContent.HazardNames[(int)kind]+" / warning symbols",parent,Vector3.zero);
             switch(kind)

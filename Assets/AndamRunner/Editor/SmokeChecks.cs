@@ -70,6 +70,7 @@ namespace AndamRunnerEditor
             CheckNewItems(game);
             PowerUpChecks.Run(game);
             RunCadenceChecks.Run(game);
+            EnvironmentChecks.Run(game);
             game.StartRun(); game.Spawner.SpawnSupply(SupplyKind.GoBag,1,.1f); game.Simulate(.1f);
             Check(game.Session.Score==20 && game.Session.Collected==1,"real supply pickup");
             game.Simulate(.1f); Check(game.Session.Score==20,"pickup only scored once");
@@ -208,7 +209,7 @@ namespace AndamRunnerEditor
             Check(game.Session.Lives==2 && game.Speed==RunPace.BaseSpeed,"grace prevents another life loss while every bump still resets speed");
             game.StartRun(); Click(game,"DUCK"); Check(game.Player.IsDucking,"touch duck button is connected");
             game.StartRun(); Check(!game.Player.IsDucking,"restart clears duck state");
-            Check(Camera.main.GetComponent<CoastalIllustrationBackground>().Storm,"gameplay uses the storm evacuation backdrop");
+            Check(game.Environment!=null && game.Environment.StormAmount==0,"new runs begin on the sunny layered coastal road");
         }
 
         private static void Click(GameManager game,string name)

@@ -59,11 +59,10 @@ namespace AndamRunner
         }
         public void Consume() { Consumed = true; gameObject.SetActive(false); }
 
-        public void Animate(float time)
+        public void Animate(float time,float surfaceHeight=0,float roadSlope=0)
         {
-            if (!IsPickup) return;
-            art.localPosition = new Vector3(0f, Mathf.Sin(time * 3f + phase) * 0.11f, 0f);
-            art.localRotation = Quaternion.Euler(0f, Mathf.Sin(time * 1.6f + phase) * 18f, 0f);
+            art.localPosition = new Vector3(0f,surfaceHeight+(IsPickup?Mathf.Sin(time*3f+phase)*.11f:0),0f);
+            art.localRotation = Quaternion.Euler(-Mathf.Atan(roadSlope)*Mathf.Rad2Deg,IsPickup?Mathf.Sin(time*1.6f+phase)*18f:0,0);
         }
 
         public bool IsContact(Vector3 playerFrom, Vector3 playerTo, float fromZ, float toZ,float duckRemainingAtStart=0,float delta=0)

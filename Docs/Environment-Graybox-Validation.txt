@@ -1,0 +1,5 @@
+Unity 6000.6.5f1 on 2026-10-13 20:23:43Z
+70474 graybox environment assertions passed.
+75 prefabs with asset-purpose/layer metadata, saved meshes, disabled design colliders and shared vertex-palette materials. Road modules limit prominent props, preserve three lane centers, expose entry/exit anchors and stay within triangle budgets.
+Coast-to-alley-to-uphill sequence, gentle elevations, loop seams, gradual weather, bounded road slots and fixed chase camera checked. District transitions reuse prewarmed views. Uphill jumping still clears an obstacle and collects exactly one raised supply.
+No real-time shadows, bloom, camera shake or scenery physics collisions. Physical Android GPU performance still needs profiling.

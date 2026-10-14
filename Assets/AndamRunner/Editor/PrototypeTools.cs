@@ -85,13 +85,14 @@ namespace AndamRunnerEditor
             else EditorSceneManager.OpenScene(ScenePath);
             EditorBuildSettings.scenes=new[] { new EditorBuildSettingsScene(ScenePath,true) };
             ConfigureSettings(); AssetDatabase.SaveAssets();
+            EnvironmentPackExporter.EnsurePack();
             Debug.Log("ANDAM: MainGame is ready. Press Play. Android support installed: "+BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Android,BuildTarget.Android));
         }
 
         private static void ConfigureSettings()
         {
             PlayerSettings.companyName="ANDAM Lapu-Lapu"; PlayerSettings.productName="Ready Set Resilient";
-            PlayerSettings.bundleVersion="0.6.4"; PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"org.andamlapulapu.readysetresilient");
+            PlayerSettings.bundleVersion="0.7.0"; PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android,"org.andamlapulapu.readysetresilient");
             PlayerSettings.defaultInterfaceOrientation=UIOrientation.Portrait;
             PlayerSettings.allowedAutorotateToLandscapeLeft=false; PlayerSettings.allowedAutorotateToLandscapeRight=false;
             PlayerSettings.allowedAutorotateToPortraitUpsideDown=false;

@@ -21,6 +21,7 @@ namespace AndamRunner
         public float Distance => Pace.Distance;
         public float Speed => Pace.Speed;
         public float GraceRemaining { get; private set; }
+        public CoastalEnvironment Environment { get; private set; }
         private SwipeInput input;
         private CameraFollow follow;
 
@@ -39,13 +40,13 @@ namespace AndamRunner
             RenderSettings.fog=true; RenderSettings.fogMode=FogMode.Linear;
             RenderSettings.fogColor=new Color32(167,220,229,255); RenderSettings.fogStartDistance=44; RenderSettings.fogEndDistance=100;
             Player=NewChild("Player - Opong",transform).AddComponent<PlayerRunner>(); Player.Initialize();
+            NewChild("Soft Opong contact shadow",transform).AddComponent<OpongContactShadow>().Initialize(Player);
             Road=NewChild("Repeating coastal road",transform).AddComponent<RepeatingRoad>(); Road.Initialize();
             Spawner=NewChild("Pooled supplies and hazards",transform).AddComponent<SpawnManager>(); Spawner.Initialize(this);
             Camera camera=Camera.main;
             if(camera==null) { camera=NewChild("Main Camera",transform).AddComponent<Camera>(); camera.tag="MainCamera"; camera.gameObject.AddComponent<AudioListener>(); }
             camera.clearFlags=RenderSettings.skybox!=null ? CameraClearFlags.Skybox : CameraClearFlags.SolidColor; camera.backgroundColor=RenderSettings.fogColor;
-            camera.fieldOfView=62; camera.nearClipPlane=.15f; camera.farClipPlane=120;
-            camera.gameObject.AddComponent<CoastalIllustrationBackground>();
+            camera.fieldOfView=56; camera.nearClipPlane=.15f; camera.farClipPlane=155;
             follow=camera.gameObject.AddComponent<CameraFollow>(); follow.Initialize(Player);
             if(FindAnyObjectByType<Light>()==null)
             {
@@ -53,9 +54,10 @@ namespace AndamRunner
                 sun.type=LightType.Directional; sun.color=new Color(1,.95f,.83f); sun.intensity=1.1f;
                 sun.transform.rotation=Quaternion.Euler(45,-35,0);
             }
-            Light sunlight=FindAnyObjectByType<Light>(); sunlight.shadows=LightShadows.Soft; sunlight.shadowStrength=.4f; sunlight.intensity=1.05f;
-            QualitySettings.shadows=ShadowQuality.All; QualitySettings.shadowDistance=28; QualitySettings.shadowCascades=0;
+            Light sunlight=FindAnyObjectByType<Light>(); sunlight.shadows=LightShadows.None; sunlight.intensity=1f;
+            QualitySettings.shadows=ShadowQuality.Disable; QualitySettings.shadowDistance=0; QualitySettings.shadowCascades=0;
             QualitySettings.shadowResolution=ShadowResolution.Medium; QualitySettings.antiAliasing=2;
+            Environment=NewChild("Layered Philippine coastal environment",transform).AddComponent<CoastalEnvironment>(); Environment.Initialize(Road,camera,sunlight);
             follow.SetPresentation(true);
             input=gameObject.AddComponent<SwipeInput>(); input.Initialize(this);
             UI=NewChild("Phone interface",transform).AddComponent<UIManager>(); UI.Initialize(this);
@@ -85,11 +87,12 @@ namespace AndamRunner
                 PowerUps.Tick(step);
                 Vector3 before=Player.transform.position;
                 float duckBefore=Player.DuckRemaining;
+                Player.SetRoadSlope(Road.SlopeAtZ(0));
                 Player.Tick(step,GraceRemaining>0f);
                 float travel=Speed*step; Pace.Advance(travel); Road.Tick(travel);
                 Spawner.Tick(step,travel/step,Player,this,before,duckBefore);
             }
-            UI.RefreshDistance();
+            Environment.Apply(); UI.RefreshDistance();
             UI.RefreshPowerUps();
         }
 
@@ -99,7 +102,7 @@ namespace AndamRunner
             RunId=System.Guid.NewGuid().ToString("N"); LastRank=0;
             Session.Reset(); Pace.Restart(); PowerUps.Reset(); GraceRemaining=0;
             Player.ResetRunner(); Player.Show(); Spawner.ResetTrack(); Road.ResetRoad(); follow.SetPresentation(false); follow.ResetCamera(); input.ResetGesture();
-            State=RunState.Playing; UI.ShowPlay(); UI.Refresh();
+            State=RunState.Playing; Environment.Apply(); UI.ShowPlay(); UI.Refresh();
             UI.ClearFeedback();
         }
 

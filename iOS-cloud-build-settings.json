@@ -23,6 +23,6 @@
   "signing": "Apple Development .p12 and matching iOS App Development .mobileprovision",
   "status": "Unity export and GitHub upload succeeded; cloud repository connection saved; iOS target draft requires Apple signing files before it can be saved",
   "repository": "https://github.com/ilquijano-afk/mag-andam",
-  "player_version": "0.6.4",
-  "player_build_number": "5"
+  "player_version": "0.7.0",
+  "player_build_number": "6"
 }

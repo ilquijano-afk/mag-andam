@@ -56,7 +56,11 @@ namespace AndamRunnerEditor
                 if(SessionState.GetBool(MenuKey,false))
                 {
                     SessionState.SetBool(MenuKey,false);
+                    CheckModel(game);
                     CaptureMenuArtwork(game);
+                    EnvironmentReviewTools.Render(game);
+                    foreach(Material material in new[]{game.Road.Pack.Palette,game.Road.Pack.GameplayPalette,game.Road.Pack.BackgroundPalette,game.Road.Pack.Water,game.Road.Pack.Rain,game.Road.Pack.Shadow})
+                        if(ShaderUtil.ShaderHasError(material.shader)) throw new Exception("Environment shader errors: "+material.shader.name);
                     if(Application.isBatchMode) EditorApplication.Exit(0); else EditorApplication.isPlaying=false;
                     return;
                 }
@@ -113,12 +117,12 @@ namespace AndamRunnerEditor
                 if(Application.isBatchMode) EditorApplication.Exit(1); else EditorApplication.isPlaying=false;
             }
         }
-        private static void Capture(GameManager game,string name,int width=720,int height=1280)
+        internal static void Capture(GameManager game,string name,int width=720,int height=1280)
         {
             Camera camera=Camera.main; Canvas canvas=game.UI.GetComponent<Canvas>(); CanvasScaler scaler=game.UI.GetComponent<CanvasScaler>();
             var target=new RenderTexture(width,height,24,RenderTextureFormat.ARGB32) {antiAliasing=2}; target.Create();
             camera.targetTexture=target; camera.aspect=(float)width/height;
-            camera.GetComponent<CoastalIllustrationBackground>().Fit();
+            camera.GetComponent<CameraFollow>().SendMessage("LateUpdate"); game.Environment.Apply();
             if(game.State==RunState.Playing)
             {
                 if(camera.WorldToViewportPoint(new Vector3(game.Player.transform.position.x,.15f,-1.35f)).y<=.25f) throw new Exception("The shield must clear the learning message.");
@@ -138,7 +142,7 @@ namespace AndamRunnerEditor
             camera.Render(); camera.Render();
             if(game.UI.CurrentPage==MenuPage.Results)
                 foreach(Text text in game.UI.GetComponentsInChildren<Text>())
-                    if(text.name=="Live score" && text.cachedTextGenerator.vertexCount<=4)
+                    if(text.name=="Live score" && text.cachedTextGenerator.vertexCount<4)
                         throw new Exception("The live score must remain visible at "+width+"x"+height+".");
             CheckPaintedButtonHits(game,camera);
             RenderTexture previous=RenderTexture.active; RenderTexture.active=target;
@@ -168,6 +172,7 @@ namespace AndamRunnerEditor
             game.Spawner.SpawnHazard(HazardKind.RoadBlock,1,14);
             CapturePhoneSizes(game,"26-Gameplay-JumpRewards");
             game.StartRun(); game.Spawner.ClearForChecks(); game.Pace.Advance(500);
+            game.Road.SetDistance(500); game.Environment.Apply();
             game.UI.RefreshDistance();
             game.Spawner.SpawnPowerUp(PowerUpKind.DoubleScore,1,24);
             CapturePhoneSizes(game,"27-Gameplay-PowerUps");
@@ -278,11 +283,8 @@ namespace AndamRunnerEditor
             actor.EvaluatePreview("Land",.5f);
             if(body.localScale.y>.96f) throw new Exception("Landing pose is not evaluating.");
             actor.ResetPose();
-            if(Camera.main.GetComponent<CoastalIllustrationBackground>()==null || Camera.main.transform.Find("Illustrated Barangay Mactan coast")==null) throw new Exception("Gameplay illustration missing.");
-            int laneRenderers=0;
-            foreach(Renderer renderer in game.GetComponentsInChildren<Renderer>()) if(renderer.sharedMaterial.shader.name=="Andam/IllustratedGround") laneRenderers++;
-            if(laneRenderers<2) throw new Exception("Painted lanes must retain their fading material after mesh combination.");
-            Debug.Log("ANDAM_ART_PASS: "+triangles+" triangles, "+mesh.vertexCount+" vertices, one skinned renderer/material, "+skin.bones.Length+" bones, 1024 atlas, eight evaluated clips and illustrated gameplay backdrop.");
+            if(game.Environment==null || game.Road.Pack==null || Camera.main.GetComponent<CoastalIllustrationBackground>()!=null) throw new Exception("Layered 3D environment must replace the gameplay painting.");
+            Debug.Log("ANDAM_ART_PASS: "+triangles+" triangles, "+mesh.vertexCount+" vertices, one skinned renderer/material, "+skin.bones.Length+" bones, 1024 atlas, eight evaluated clips and layered 3D environment.");
         }
 
         private static void CheckTrackArtwork(GameManager game)

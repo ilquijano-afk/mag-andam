@@ -15,7 +15,7 @@ namespace AndamRunner
         private InputField nickname;
         public string Nickname => nickname != null ? nickname.text : "OPONG";
         private Text score, lives, distance, speed, feedback, resultsScore, resultsSummary, homeAction;
-        private Text powerUpStatus;
+        private Text powerUpStatus, routeLabel;
         private int lastMultiplier=-1,lastMultiplierSeconds=-1,lastMagnetSeconds=-1;
         private Image feedbackBackground;
         private float feedbackUntil;
@@ -83,7 +83,7 @@ namespace AndamRunner
             ButtonAt(hud.transform,"DUCK",.509f,.035f,.729f,.115f,PreparednessContent.Teal,game.Duck,23);
             ButtonAt(hud.transform,"RIGHT >",.746f,.035f,.966f,.115f,DarkPanel,()=>game.Move(1),23);
             RectTransform route=Card("Evacuation route",new Vector2(.10f,.845f),new Vector2(.90f,.877f),DarkPanel,hud.transform);
-            TextLabel(route,"TO THE EVACUATION CENTER",.025f,.02f,.975f,.98f,16,White,true);
+            routeLabel=TextLabel(route,CoastalRouteProfile.RouteCaption(0),.025f,.02f,.975f,.98f,16,White,true);
             powerUpStatus=TextLabel(hud.transform,"Power-up status",.10f,.807f,.90f,.842f,22,White,true);
             powerUpStatus.gameObject.AddComponent<Outline>().effectColor=PreparednessContent.Ink;
             RefreshPowerUps();
@@ -101,6 +101,9 @@ namespace AndamRunner
                 resultsScore.resizeTextMinSize=48;
                 //resultsSummary=TextLabel(layer,"",.13f,.447f,.87f,.492f,18,PreparednessContent.Ink);
                 resultsSummary=TextLabel(layer,"",.13f,.492f,.87f,.559f,25,PreparednessContent.Ink);
+                RectTransform lesson=Card("Home preparedness lesson",new Vector2(.105f,.278f),new Vector2(.895f,.382f),new Color32(255,250,239,255),layer);
+                TextLabel(lesson,"RESILIENCE STARTS AT HOME",.035f,.78f,.965f,.97f,19,PreparednessContent.Teal,true);
+                homeAction=TextLabel(lesson,"",.04f,.04f,.96f,.78f,22,PreparednessContent.Ink);
                 IllustratedButtonAt(layer,"PLAY AGAIN",.257f,.175f,.747f,.252f,game.StartRun);
                 IllustratedButtonAt(layer,"MAIN MENU",.068f,.095f,.493f,.168f,game.ReturnToMenu);
                 IllustratedButtonAt(layer,"SCORES",.508f,.095f,.933f,.168f,ShowLeaderboard);
@@ -150,8 +153,7 @@ namespace AndamRunner
             resultsSummary.text=illustratedPages[(int)MenuPage.Results]
                 ? $"{game.RiderName}  -  {Mathf.FloorToInt(game.Distance)} m  -  {game.Session.UniqueSupplies}/{PreparednessContent.SupplyCount} supplies\n{rank}  -  Distractors: {game.Session.DistractorsCollected}"
                 : $"{Mathf.FloorToInt(game.Distance)} m  /  {game.Session.Collected} supplies  /  {game.Session.UniqueSupplies} of {PreparednessContent.SupplyCount} types\n{game.RiderName}  -  {rank}";
-            int actionIndex=(game.Session.Collected+Mathf.FloorToInt(game.Distance/40f))%PreparednessContent.HomeActions.Length;
-            if(homeAction!=null) homeAction.text=PreparednessContent.HomeActions[actionIndex];
+            if(homeAction!=null) homeAction.text=CoastalRouteProfile.HomeLesson(game.Distance);
         }
         public void Refresh()
         {
@@ -165,6 +167,7 @@ namespace AndamRunner
             if(meters==lastDistance && lastSpeedLevel==game.Pace.Level) return;
             lastDistance=meters; lastSpeedLevel=game.Pace.Level; distance.text=meters+" m";
             speed.text="SPEED  "+game.Speed.ToString("0.#")+" m/s";
+            routeLabel.text=CoastalRouteProfile.RouteCaption(game.Road.Distance);
         }
         public void Feedback(string message,bool positive)
         {

@@ -1,4 +1,4 @@
-Unity 6000.6.5f1 checks passed on 2026-10-13 01:33:45Z
+Unity 6000.6.5f1 checks passed on 2026-10-14 00:36:17Z
 4408 assertions; isolated scores, no real leaderboard changes.
 336 timed ground-obstacle jumps: four regular hazards, all lanes, all seven speeds, 15/30/60/120 fps.
 Early/late jumps, landing, swept lane crossings, single penalties and speed resets checked.

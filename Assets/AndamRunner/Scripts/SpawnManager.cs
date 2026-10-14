@@ -114,7 +114,7 @@ namespace AndamRunner
                     entity.transform.position.z>=-1 && (entity.transform.position-player.transform.position).sqrMagnitude<=RunPowerUps.MagnetRadius*RunPowerUps.MagnetRadius)
                     entity.transform.position=Vector3.MoveTowards(entity.transform.position,player.transform.position,32f*delta);
                 toZ=entity.transform.position.z;
-                entity.Animate(Time.time);
+                entity.Animate(Time.time,game.Road.HeightAtZ(toZ),game.Road.SlopeAtZ(toZ));
                 if(entity.SpansAllLanes && !entity.Warned && toZ<speed*.65f+.9f && toZ>0)
                 {
                     entity.Warned=true; game.Feedback("LOW CABLE ACROSS ALL LANES\nSwipe DOWN or tap DUCK now!",false);

@@ -17,6 +17,8 @@ namespace AndamRunner
         public Transform Visual { get; private set; }
         private float jumpTime = -1f;
         private float lean;
+        private float roadPitch;
+        public void SetRoadSlope(float slope) { roadPitch=-Mathf.Atan(slope)*Mathf.Rad2Deg*.65f; }
 
         public void Initialize()
         {
@@ -33,6 +35,7 @@ namespace AndamRunner
             DuckRemaining=0;
             Height = 0f;
             lean = 0f;
+            roadPitch=0;
             transform.position = Vector3.zero;
             if (Visual != null)
             {
@@ -62,7 +65,7 @@ namespace AndamRunner
             lean = Mathf.Lerp(lean, wantedLean, 1f - Mathf.Exp(-12f * delta));
             float bob = Mathf.Sin(Time.time * 7f) * 0.025f;
             Visual.localPosition = new Vector3(0f, bob, 0f);
-            Visual.localRotation = Quaternion.Euler(0f, 0f, lean);
+            Visual.localRotation = Quaternion.Euler(roadPitch, 0f, lean);
             // Visible feedback uses whole-model blinking, not a new material per frame.
             Visual.gameObject.SetActive(!hurt || Mathf.FloorToInt(Time.time * 12f) % 2 == 0);
         }

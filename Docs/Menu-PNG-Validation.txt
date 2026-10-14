@@ -1,4 +1,4 @@
-Unity 6000.6.5f1 supplied menu PNG validation on 2026-10-13 01:33:50Z
+Unity 6000.6.5f1 supplied menu PNG validation on 2026-10-14 00:36:31Z
 Gameplay, menu navigation and persistent leaderboard smoke checks passed.
 All seven page PNGs, empty leaderboard and ten sample leaderboard rows rendered at 720x1280, 720x1080 and 720x1600. Live results scores and menu/leaderboard navigation checked.
 Painted-button tap areas checked with the Unity GraphicRaycaster at their centers and near all four edges. Transparent graphics remain tappable and their duplicate text is disabled.
